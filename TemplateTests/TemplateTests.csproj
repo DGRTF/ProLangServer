@@ -1,13 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>netcoreapp6.0</TargetFramework>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="10.3.3" />
+    <PackageReference Include="FluentAssertions" Version="6.3.0" />
+    <PackageReference Include="FluentValidation" Version="10.3.6" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
@@ -22,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TemplateDataLayer\TemplateDataLayer.csproj" />
+    <ProjectReference Include="..\Logic\UserLogic\UserLogic.csproj" />
     <ProjectReference Include="..\Template\Template.csproj" />
   </ItemGroup>
 
