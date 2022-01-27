@@ -22,9 +22,12 @@ public class AuthorizeService : IAuthorizeService
     /// <inheritdoc />
     public async Task<string> RegisterUser(RegisterUser user)
     {
-        var registerUserResponce = await _authorizeRepository.RegisterUser(user);
+        var registerUserResponse = await _authorizeRepository.RegisterUser(user);
 
-        return GetJwt(user.Email, registerUserResponce);
+        if (!registerUserResponse.Succeeded)
+            return string.Empty;
+
+        return registerUserResponse.Token;
     }
 
     /// <inheritdoc />
@@ -35,19 +38,24 @@ public class AuthorizeService : IAuthorizeService
         return GetJwt(user.Email, loginUserResponse);
     }
 
+    public async Task<string> ConfirmEmail(ConfirmUserEmail model)
+    {
+        var loginUserResponse = await _authorizeRepository.ConfirmEmail(model);
+
+        return GetJwt(model.Email, loginUserResponse);
+    }
+
     private string GetJwt(string email, AuthorizeUserResponse response)
     {
-        if (response.Succeeded)
+        if (!response.Succeeded)
+            return string.Empty;
+
+        var claims = new[]
         {
-            var claims = new[]
-            {
-                new Claim("email", email),
-                new Claim("role", response.Role),
-            };
+            new Claim("email", email),
+            new Claim("role", response.Role),
+        };
 
-            return _jwtGeneration.GetJwt(claims);
-        }
-
-        return string.Empty;
+        return _jwtGeneration.GetJwt(claims);
     }
 }

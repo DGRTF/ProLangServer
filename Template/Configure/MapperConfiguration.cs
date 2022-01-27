@@ -13,5 +13,6 @@ public class MapperConfiguration : Profile
     {
         CreateMap<RegisterUserModel, RegisterUser>().ReverseMap();
         CreateMap<LoginUserModel, LoginUser>().ReverseMap();
+        CreateMap<ConfirmUserEmailModel, ConfirmUserEmail>().ReverseMap();
     }
 }

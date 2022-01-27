@@ -15,6 +15,16 @@ public class AppConfigure
     /// <summary>
     /// Конфигурация баз данных
     /// </summary>
-    public Db Db { get; set; } = new Db();   
-    
+    public Db Db { get; set; } = new Db();
+
+    /// <summary>
+    /// Настройки почтового сервера и связанного
+    /// с почтой функционала
+    /// </summary>
+    public EmailOptions Email { get; set; } = new EmailOptions();
+
+    /// <summary>
+    /// Конфигурация текущего хоста
+    /// </summary>
+    public HostOptions Host { get; set; } = new HostOptions();
 }

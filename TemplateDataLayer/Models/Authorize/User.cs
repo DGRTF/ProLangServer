@@ -8,7 +8,7 @@ namespace TemplateDataLayer.Models.Authorize;
 /// Представляет пользователя
 /// </summary>
 [Table("user", Schema = "auth")]
-[Index("Id")]
+[Index("Id", IsUnique = true)]
 public class User : IdentityUser<Guid>
 {
     /// <summary>
@@ -18,17 +18,19 @@ public class User : IdentityUser<Guid>
 
     public User()
     {
-        
-    }
-
-    public User(Role role, string userName, string email)
-    {
-        Role = role;
-        UserName = userName;
-        Email = email;
         NormalizedUserName = string.Empty;
         PhoneNumber = string.Empty;
         ConcurrencyStamp = string.Empty;
         SecurityStamp = string.Empty;
+        UserName = string.Empty;
+        Email = string.Empty;
+        Role = new Role();
+    }
+
+    public User(Role role, string userName, string email) : this()
+    {
+        Role = role;
+        UserName = userName;
+        Email = email;
     }
 }

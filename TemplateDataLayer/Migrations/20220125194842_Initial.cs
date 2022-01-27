@@ -62,22 +62,11 @@ namespace TemplateDataLayer.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_role_Id",
-                schema: "auth",
-                table: "role",
-                column: "Id");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_user_Id",
                 schema: "auth",
                 table: "user",
-                column: "Id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_user_RoleId",
-                schema: "auth",
-                table: "user",
-                column: "RoleId");
+                column: "Id",
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

@@ -12,7 +12,7 @@ using TemplateDataLayer.Contexts;
 namespace TemplateDataLayer.Migrations
 {
     [DbContext(typeof(AuthorizeContext))]
-    [Migration("20220123182840_Initial")]
+    [Migration("20220125194842_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,8 +40,6 @@ namespace TemplateDataLayer.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Id");
 
                     b.ToTable("role", "auth");
                 });
@@ -99,7 +97,8 @@ namespace TemplateDataLayer.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Id");
+                    b.HasIndex("Id")
+                        .IsUnique();
 
                     b.HasIndex("RoleId");
 

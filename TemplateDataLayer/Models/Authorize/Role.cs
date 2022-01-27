@@ -1,7 +1,5 @@
-using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace TemplateDataLayer.Models.Authorize;
 
@@ -9,7 +7,6 @@ namespace TemplateDataLayer.Models.Authorize;
 /// Представляет роль пользователя
 /// </summary>
 [Table("role", Schema = "auth")]
-[Index("Id")]
 public class Role : IdentityRole<Guid>
 {
     /// <summary>
@@ -17,9 +14,10 @@ public class Role : IdentityRole<Guid>
     /// </summary>
     ICollection<User> Users { get; set; } = new List<User>();
 
-    public Role()
+    public Role() : base()
     {
-        
+        ConcurrencyStamp = string.Empty;
+        NormalizedName = string.Empty;
     }
 
     public Role(string name) : base(name ?? string.Empty)

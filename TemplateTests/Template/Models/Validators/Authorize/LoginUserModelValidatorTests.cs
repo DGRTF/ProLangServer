@@ -18,7 +18,6 @@ public class LoginUserModelValidatorTests
     [InlineData("")]
     [InlineData("email")]
     [InlineData("email@")]
-    [InlineData("email@")]
     public void ShouldHaveValidationErrorForEmail(string email)
     {
         var model = ValidGetOrdersModel();

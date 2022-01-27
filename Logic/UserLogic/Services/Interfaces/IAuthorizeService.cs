@@ -20,4 +20,11 @@ public interface IAuthorizeService
     /// <param name="user">Модель регистрации пользователя</param>
     /// <returns>Jwt</returns>
     Task<string> GetToken(LoginUser user);
+
+    /// <summary>
+    /// Проверка email пользователя
+    /// </summary>
+    /// <param name="user">Модель проверки email</param>
+    /// <returns>Jwt</returns>
+    Task<string> ConfirmEmail(ConfirmUserEmail model);
 }

@@ -12,7 +12,7 @@ public interface IAuthorizeRepository
     /// </summary>
     /// <param name="user">Модель регистрации пользователя</param>
     /// <returns>Успешность регистрации пользователя</returns>
-    Task<AuthorizeUserResponse> RegisterUser(RegisterUser user);
+    Task<RegisterUserResponse> RegisterUser(RegisterUser user);
 
     /// <summary>
     /// Проверяет наличие пользователя и его пароль связываясь с базой данных
@@ -20,4 +20,10 @@ public interface IAuthorizeRepository
     /// <param name="user">Модель входа пользователя</param>
     /// <returns>Успешность входа пользователя</returns>
     Task<AuthorizeUserResponse> Login(LoginUser user);
+
+    /// <summary>
+    /// Проверка email пользователя
+    /// </summary>
+    /// <param name="user">Модель проверки email</param>
+    Task<AuthorizeUserResponse> ConfirmEmail(ConfirmUserEmail model);
 }

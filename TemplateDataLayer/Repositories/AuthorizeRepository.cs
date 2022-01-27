@@ -26,22 +26,43 @@ public class AuthorizeRepository : IAuthorizeRepository
     }
 
     /// <inheritdoc />
-    public async Task<AuthorizeUserResponse> Login(LoginUser user)
+    public async Task<AuthorizeUserResponse> ConfirmEmail(ConfirmUserEmail model)
     {
-        var findUser = await _context.Users
-            .Include(x=> x.Role)
-            .FirstOrDefaultAsync(x => x.Email == user.Email);
+        User findUser = await FindUserByEmail(model.Email);
 
-        if (findUser == null)
-            return new AuthorizeUserResponse(false, string.Empty);
+        if (findUser.Email == string.Empty)
+            return GetUnsuccessfulAuthorizeResponse();
 
-        var isValidPassword = await _userManager.CheckPasswordAsync(findUser, user.Password);
+        var result = await _userManager.ConfirmEmailAsync(findUser, model.Token);
 
-        return new AuthorizeUserResponse(isValidPassword, findUser?.Role?.Name ?? string.Empty);
+        if (result.Succeeded)
+            return new AuthorizeUserResponse(true, findUser.Role.Name);
+
+        return GetUnsuccessfulAuthorizeResponse();
     }
 
     /// <inheritdoc />
-    public async Task<AuthorizeUserResponse> RegisterUser(RegisterUser model)
+    public async Task<AuthorizeUserResponse> Login(LoginUser user)
+    {
+        var findUser = await FindUserByEmail(user.Email);
+
+        if (!findUser.EmailConfirmed)
+            return GetUnsuccessfulAuthorizeResponse();
+
+        var isValidPassword = await _userManager.CheckPasswordAsync(findUser, user.Password);
+
+        return new AuthorizeUserResponse(isValidPassword, findUser.Role.Name);
+    }
+
+    private async Task<User> FindUserByEmail(string email) => await _context.Users
+            .Include(x => x.Role)
+            .FirstOrDefaultAsync(x => x.NormalizedEmail  ==
+                 _userManager.NormalizeEmail(email)) ?? new User();
+
+    private AuthorizeUserResponse GetUnsuccessfulAuthorizeResponse() => new AuthorizeUserResponse(false, string.Empty);
+
+    /// <inheritdoc />
+    public async Task<RegisterUserResponse> RegisterUser(RegisterUser model)
     {
         var role = await _roleManager.FindByNameAsync(RoleConstants.UserRole)
             ?? new Role(RoleConstants.UserRole);
@@ -49,11 +70,18 @@ public class AuthorizeRepository : IAuthorizeRepository
         var findUser = await _userManager.FindByEmailAsync(model.Email);
 
         if (findUser != null)
-            return new AuthorizeUserResponse(false, RoleConstants.UserRole);
+            return GetUnsuccessfulRegisterResponse();
 
         User user = new User(role, RoleConstants.DefaultUserName, model.Email);
         var result = await _userManager.CreateAsync(user, model.Password);
 
-        return new AuthorizeUserResponse(result.Succeeded, RoleConstants.UserRole);
+        if (!result.Succeeded)
+            return GetUnsuccessfulRegisterResponse();
+
+        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+        return new RegisterUserResponse(result.Succeeded, code);
     }
+
+    private RegisterUserResponse GetUnsuccessfulRegisterResponse() => new RegisterUserResponse(false, string.Empty);
 }

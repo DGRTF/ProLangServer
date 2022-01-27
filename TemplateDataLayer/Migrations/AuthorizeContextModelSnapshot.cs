@@ -39,8 +39,6 @@ namespace TemplateDataLayer.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Id");
-
                     b.ToTable("role", "auth");
                 });
 
@@ -97,7 +95,8 @@ namespace TemplateDataLayer.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Id");
+                    b.HasIndex("Id")
+                        .IsUnique();
 
                     b.HasIndex("RoleId");
 

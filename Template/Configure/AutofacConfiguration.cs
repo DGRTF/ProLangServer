@@ -28,8 +28,10 @@ public class AutofacConfiguration
     {
         RegisterSingleInstance<AuthorizeService, IAuthorizeService>();
         RegisterSingleInstance<AuthorizeRepository, IAuthorizeRepository>();
-        _container.Register(x => new JWTGeneration(_configure.JWTAuthOptions)).As<IJwtGenerator>();
+        _container.Register(x => new JWTGeneration(_configure.JWTAuthOptions)).As<IJwtGenerator>().SingleInstance();
         _container.RegisterAutoMapper(typeof(Program).Assembly);
+        _container.Register( x => new ConfirmMailService(_configure.Email)).As<IConfirmMailService>().SingleInstance();
+        _container.RegisterInstance(_configure.Host).As<Models.Configure.HostOptions>().SingleInstance();
     }
 
     private IRegistrationBuilder<TInstance, Autofac.Builder.ConcreteReflectionActivatorData, Autofac.Builder.SingleRegistrationStyle> RegisterSingleInstance<TInstance, TService>()

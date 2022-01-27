@@ -2,6 +2,7 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Template.Configure;
 using Template.Models.Configure;
@@ -12,7 +13,7 @@ namespace Template
 {
     public class Startup
     {
-        private ILifetimeScope _autofacContainer;
+        private ILifetimeScope _autofacContainer = null!;
         private AppConfigure _appConfigureModel = new AppConfigure();
 
         public Startup(IConfiguration config)
@@ -38,7 +39,8 @@ namespace Template
                     x.User.AllowedUserNameCharacters = string.Empty;
                     x.User.RequireUniqueEmail = true;
                 })
-                .AddEntityFrameworkStores<AuthorizeContext>();
+                .AddEntityFrameworkStores<AuthorizeContext>()
+                .AddDefaultTokenProviders();
 
             services.AddAuthorization(options =>
             {

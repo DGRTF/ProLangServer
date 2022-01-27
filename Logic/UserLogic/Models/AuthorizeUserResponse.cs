@@ -1,7 +1,7 @@
 namespace UserLogic.Models;
 
 /// <summary>
-/// Представляет ответ после регистрации пользователя
+/// Представляет ответ после попытки входа пользователя
 /// </summary>
 public class AuthorizeUserResponse
 {
