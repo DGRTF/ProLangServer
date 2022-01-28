@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,29 +6,43 @@ namespace TemplateDataLayer.Models.Authorize;
 /// <summary>
 /// Представляет пользователя
 /// </summary>
-[Table("user", Schema = "auth")]
-[Index("Id", IsUnique = true)]
+[Index("NormalizedEmail", IsUnique = true)]
 public class User : IdentityUser<Guid>
 {
     /// <summary>
-    /// Роль пользователя
+    /// Утверждения о пользователе
     /// </summary>
-    public Role Role { get; set; }
+    /// <value></value>
+    public virtual ICollection<IdentityUserClaim<Guid>> Claims { get; set; }
 
-    public User()
+    /// <summary>
+    /// Логины пользователя
+    /// </summary>
+    /// <value></value>
+    public virtual ICollection<IdentityUserLogin<Guid>> Logins { get; set; }
+
+    /// <summary>
+    /// Токены пользователя
+    /// </summary>
+    /// <value></value>
+    public virtual ICollection<IdentityUserToken<Guid>> Tokens { get; set; }
+    
+    /// <summary>
+    /// Роли пользователя
+    /// </summary>
+    public virtual ICollection<Role> Roles { get; set; }
+
+    public User(): base()
     {
-        NormalizedUserName = string.Empty;
-        PhoneNumber = string.Empty;
-        ConcurrencyStamp = string.Empty;
-        SecurityStamp = string.Empty;
-        UserName = string.Empty;
-        Email = string.Empty;
-        Role = new Role();
+        Claims = new List<IdentityUserClaim<Guid>>();
+        Logins = new List<IdentityUserLogin<Guid>>();
+        Tokens = new List<IdentityUserToken<Guid>>();
+        Roles = new List<Role>();
     }
 
     public User(Role role, string userName, string email) : this()
     {
-        Role = role;
+        Roles.Add(role);
         UserName = userName;
         Email = email;
     }

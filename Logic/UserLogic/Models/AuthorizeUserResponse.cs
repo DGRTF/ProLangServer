@@ -11,10 +11,10 @@ public class AuthorizeUserResponse
     public bool Succeeded { get; }
 
     /// <summary>
-    /// В случае успеха заданная пользователю роль
+    /// В случае успеха заданные пользователю роли
     /// </summary>
     /// <value></value>
-    public string Role { get; }
+    public IReadOnlyCollection<string> Roles { get; }
 
     /// <summary>
     /// Ошибка в случае неудачи
@@ -31,7 +31,7 @@ public class AuthorizeUserResponse
     /// Конструктор для формирования ответа о неуспешном запросе
     /// </summary>
     /// <param name="error">Ошибка</param>
-    public AuthorizeUserResponse(string error) : this(false, string.Empty)
+    public AuthorizeUserResponse(string error) : this(false, new List<string>())
     {
         Error = error ?? string.Empty;
     }
@@ -41,10 +41,11 @@ public class AuthorizeUserResponse
     /// </summary>
     /// <param name="succeeded">Успешность операции регистрации</param>
     /// <param name="role">В случае успеха присвоенная пользователю роль</param>
-    public AuthorizeUserResponse(bool succeeded, string role)
+    public AuthorizeUserResponse(bool succeeded, IReadOnlyCollection<string> roles)
     {
         Succeeded = succeeded;
-        Role = succeeded ? role : string.Empty;
+        Roles = succeeded ? roles : new List<string>();
+        Roles ??= new List<string>();
         Error = string.Empty;
         Token = string.Empty;
     }
@@ -57,7 +58,7 @@ public class AuthorizeUserResponse
     public AuthorizeUserResponse(AuthorizeUserResponse response, string token)
     {
         Succeeded = response.Succeeded ? response.Succeeded : throw new ArgumentException($"Входной параметр {nameof(response)} должен быть true");
-        Role = response.Succeeded ? response.Role : string.Empty;
+        Roles = response.Roles;
         Error = string.Empty;
         Token = token;
     }

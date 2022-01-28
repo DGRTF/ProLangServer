@@ -34,9 +34,10 @@ public class AuthorizeRepository : IAuthorizeRepository
             return new AuthorizeUserResponse("Пользователь с таким адресом электронной почты не был найден");
 
         var result = await _userManager.ConfirmEmailAsync(findUser, model.Token);
+        var rolesNames = findUser?.Roles?.Select(x => x.NormalizedName).ToList() ?? new List<string>();
 
         if (result.Succeeded)
-            return new AuthorizeUserResponse(true, findUser.Role.Name);
+            return new AuthorizeUserResponse(true, rolesNames);
 
         return new AuthorizeUserResponse("Неверная ссылка для подтверждения пароля");
     }
@@ -57,11 +58,13 @@ public class AuthorizeRepository : IAuthorizeRepository
         if (!isValidPassword)
             return new AuthorizeUserResponse("Неправильный логин или пароль");
 
-        return new AuthorizeUserResponse(isValidPassword, findUser.Role.Name);
+        var rolesNames = findUser?.Roles?.Select(x => x.NormalizedName).ToList() ?? new List<string>();
+
+        return new AuthorizeUserResponse(isValidPassword, rolesNames);
     }
 
     private async Task<User> FindUserWithRoleByEmailAsync(string email) => await _context.Users
-            .Include(x => x.Role)
+            .Include(x => x.Roles)
             .FirstOrDefaultAsync(x => x.NormalizedEmail ==
                  _userManager.NormalizeEmail(email)) ?? new User();
 
@@ -100,7 +103,9 @@ public class AuthorizeRepository : IAuthorizeRepository
         if (!result.Succeeded)
             return new AuthorizeUserResponse("Неправильные имя пользовател или пароль");
 
-        return new AuthorizeUserResponse(true, user.Role.Name);
+        var rolesNames = user?.Roles?.Select(x => x.NormalizedName).ToList() ?? new List<string>();
+
+        return new AuthorizeUserResponse(true, rolesNames);
     }
 
     /// <inheritdoc />
