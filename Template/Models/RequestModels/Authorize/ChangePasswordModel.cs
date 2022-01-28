@@ -1,19 +1,20 @@
-namespace UserLogic.Models;
+namespace Template.Models.RequestModels.Authorize;
 
 /// <summary>
-/// Модель подтверждения email адреса пользователя
+/// Модель смены пароля
 /// </summary>
-public class ConfirmUserEmail
+public class ChangePasswordModel
 {
     /// <summary>
-    /// Email
+    /// Электронная почта
     /// </summary>
     public string Email { get; set; } = string.Empty;
     
     /// <summary>
-    /// Токен высланный на почтовый ящик для проверки
+    /// User password
     /// </summary>
-    public string Token { get; set; } = string.Empty;
+    /// <value></value>
+    public string Password { get; set; } = string.Empty;
     
     /// <summary>
     /// New user password

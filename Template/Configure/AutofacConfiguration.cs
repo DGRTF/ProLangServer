@@ -4,10 +4,10 @@ using UserLogic.ExternalInterfaces;
 using UserLogic.Services;
 using UserLogic.Services.Interfaces;
 using TemplateDataLayer.Repositories;
-using Microsoft.AspNetCore.Identity;
-using TemplateDataLayer.Models.Authorize;
 using Template.Models.Configure;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
+using FluentValidation.AspNetCore;
+using Template.Validators;
 
 namespace Template.Configure;
 
@@ -32,6 +32,7 @@ public class AutofacConfiguration
         _container.RegisterAutoMapper(typeof(Program).Assembly);
         _container.Register( x => new ConfirmMailService(_configure.Email)).As<IConfirmMailService>().SingleInstance();
         _container.RegisterInstance(_configure.Host).As<Models.Configure.HostOptions>().SingleInstance();
+        RegisterSingleInstance<ValidatorInterceptor, IValidatorInterceptor>();
     }
 
     private IRegistrationBuilder<TInstance, Autofac.Builder.ConcreteReflectionActivatorData, Autofac.Builder.SingleRegistrationStyle> RegisterSingleInstance<TInstance, TService>()

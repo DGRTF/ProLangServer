@@ -1,19 +1,14 @@
 namespace UserLogic.Models;
 
 /// <summary>
-/// Представляет ответ после регистрации пользователя
+/// Модель результата попытки сброса пароля
 /// </summary>
-public class RegisterUserResponse
+public class ResetPasswordResponse
 {
     /// <summary>
     /// Успешность операции
     /// </summary>
     public bool Succeeded { get; }
-
-    /// <summary>
-    /// Возвращает токен для подтверждения регистрации
-    /// </summary>
-    public string Token { get; }
 
     /// <summary>
     /// Ошибка в случае неудачи
@@ -24,20 +19,18 @@ public class RegisterUserResponse
     /// Конструктор для формирования ответа о неуспешном запросе
     /// </summary>
     /// <param name="error">Ошибка</param>
-    public RegisterUserResponse(string error) : this(false, string.Empty)
+    public ResetPasswordResponse(string error) : this(false)
     {
-        Error = error ?? string.Empty;
+        Error = error ?? string.Empty;;
     }
 
     /// <summary>
     /// Конструктор
     /// </summary>
     /// <param name="succeeded">Успешность операции регистрации</param>
-    /// <param name="role">В случае успеха токен для подтверждения регистрации</param>
-    public RegisterUserResponse(bool succeeded, string token)
+    public ResetPasswordResponse(bool succeeded)
     {
         Succeeded = succeeded;
-        Token = succeeded ? token : string.Empty;
         Error = string.Empty;
     }
 }

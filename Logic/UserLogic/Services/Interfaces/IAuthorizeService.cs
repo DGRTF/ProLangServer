@@ -12,19 +12,33 @@ public interface IAuthorizeService
     /// </summary>
     /// <param name="user">Модель регистрации пользователя</param>
     /// <returns>Jwt</returns>
-    Task<string> RegisterUser(RegisterUser user);
+    Task<RegisterUserResponse> RegisterUser(RegisterUser user);
 
     /// <summary>
     /// Регистрация пользователя 
     /// </summary>
     /// <param name="user">Модель регистрации пользователя</param>
     /// <returns>Jwt</returns>
-    Task<string> GetToken(LoginUser user);
+    Task<AuthorizeUserResponse> Login(LoginUser user);
 
     /// <summary>
     /// Проверка email пользователя
     /// </summary>
     /// <param name="user">Модель проверки email</param>
     /// <returns>Jwt</returns>
-    Task<string> ConfirmEmail(ConfirmUserEmail model);
+    Task<AuthorizeUserResponse> ConfirmEmail(ConfirmUserEmail model);
+
+    /// <summary>
+    /// Меняет пароль на новый, если правильно указан старый
+    /// </summary>
+    /// <param name="model">Модель смены пароля</param>
+    /// <returns>Jwt</returns>
+    Task<AuthorizeUserResponse> ChangePassword(ChangePassword model);
+    
+    /// <summary>
+    /// Отправляет на почту новый сгенерированный пароль
+    /// </summary>
+    /// <param name="model">Модель сброса пароля</param>
+    Task<ResetPasswordResponse> ResetPassword(ConfirmUserEmail model);
+    Task<RegisterUserResponse> ForgotPassword(string email);
 }

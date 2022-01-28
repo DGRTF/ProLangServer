@@ -16,7 +16,27 @@ public class ConfirmMailService : IConfirmMailService
     }
 
     /// <inheritdoc />
-    public async Task<bool> SendMessage(string uri, string email)
+    public async Task SendMessage(string link, string email)
+    {
+        var text = $"Подтвердите регистрацию, перейдя по ссылке: <a href='{link}'>Подтвердить</a>";
+        await SendHtml(email, text);
+    }
+
+    /// <inheritdoc />
+    public async Task SendChangePasswordLink(string link, string email)
+    {
+        var text = $"Поменяйте пароль, перейдя по ссылке: <a href='{link}'>Подтвердить</a>";
+        await SendHtml(email, text);
+    }
+
+    /// <inheritdoc />
+    public async Task SendNewPassword(string password, string email)
+    {
+        var text = $"Ваш новый пароль: {password}";
+        await SendHtml(email, text);
+    }
+
+    private async Task SendHtml(string email, string text)
     {
         try
         {
@@ -29,7 +49,7 @@ public class ConfirmMailService : IConfirmMailService
 
             emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
             {
-                Text = $"Подтвердите регистрацию, перейдя по ссылке: <a href='{uri}'>Подтвердить</a>"
+                Text = text,
             };
 
             var smtpOptions = _options.Host.Smtp;
@@ -41,12 +61,10 @@ public class ConfirmMailService : IConfirmMailService
                 await client.SendAsync(emailMessage);
                 await client.DisconnectAsync(true);
             }
-
-            return true;
         }
-        catch(Exception e)
+        catch
         {
-            return false;
+            throw new Exception("Внутренняя ошибка сервера");
         }
     }
 }

@@ -26,4 +26,24 @@ public interface IAuthorizeRepository
     /// </summary>
     /// <param name="user">Модель проверки email</param>
     Task<AuthorizeUserResponse> ConfirmEmail(ConfirmUserEmail model);
+
+    /// <summary>
+    /// Меняет пароль на новый, если правильно указан старый
+    /// </summary>
+    /// <param name="model">Модель смены пароля</param>
+    /// <returns>Модель результата операции</returns>
+    Task<AuthorizeUserResponse> ChangePassword(ChangePassword model);
+    
+    /// <summary>
+    /// Задает новый пароль пользователю на основе отправленного на почту токена и email
+    /// </summary>
+    /// <param name="model">Модель сброса пароля</param>
+    /// <returns>Модель результата операции</returns>
+    Task<ResetPasswordResponse> ResetPassword(ConfirmUserEmail model);
+    
+    /// <summary>
+    /// Возвращает сгенерированный токен для сброса пароля по электронной почте пользователя
+    /// </summary>
+    /// <param name="email">Электронная почта пользователя</param>
+    Task<RegisterUserResponse> ForgotPassword(string email);
 }

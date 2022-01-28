@@ -1,13 +1,17 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Template.Configure;
 using Template.Models.Configure;
 using TemplateDataLayer.Contexts;
 using TemplateDataLayer.Models.Authorize;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Template
 {
@@ -30,12 +34,12 @@ namespace Template
 
             services.AddIdentity<User, Role>(x =>
                 {
-                    x.Password.RequiredLength = 6;
-                    x.Password.RequiredUniqueChars = 1;
-                    x.Password.RequireUppercase = true;
-                    x.Password.RequireLowercase = true;
-                    x.Password.RequireDigit = true;
-                    x.Password.RequireNonAlphanumeric = true;
+                    x.Password.RequiredLength = 8;
+                    x.Password.RequiredUniqueChars = 0;
+                    x.Password.RequireUppercase = false;
+                    x.Password.RequireLowercase = false;
+                    x.Password.RequireDigit = false;
+                    x.Password.RequireNonAlphanumeric = false;
                     x.User.AllowedUserNameCharacters = string.Empty;
                     x.User.RequireUniqueEmail = true;
                 })
@@ -44,29 +48,59 @@ namespace Template
 
             services.AddAuthorization(options =>
             {
-                options.FallbackPolicy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
+                // options.FallbackPolicy = new AuthorizationPolicyBuilder()
+                    // .RequireAuthenticatedUser()
+                    // .Build();
             });
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddJwtBearer(options =>
+                    {
+                        options.RequireHttpsMetadata = false;
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateIssuer = false,
+                            ValidateAudience = false,
+                            ValidateLifetime = true,
+                            IssuerSigningKey = _appConfigureModel.JWTAuthOptions.GetSymmetricSecurityKey(),
+                            ValidateIssuerSigningKey = true,
+                        };
+                    });
 
             services.AddControllers();
             services.AddSwaggerDocument();
             services.AddCors();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
+            app.UseExceptionHandler(x =>
             {
-                app.UseDeveloperExceptionPage();
-            }
+                x.Run(async context =>
+                {
+                    context.Response.ContentType = Text.Plain;
+
+                    var exceptionHandlerPathFeature =
+                        context.Features.Get<IExceptionHandlerPathFeature>();
+
+                    if (exceptionHandlerPathFeature?.Error is BadHttpRequestException)
+                    {
+                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                        await context.Response.WriteAsync(exceptionHandlerPathFeature?.Error.Message ?? string.Empty);
+
+                        return;
+                    }
+
+                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                    await context.Response.WriteAsync(string.Empty);
+                });
+            });
 
             app.UseRouting();
 
             if (env.IsDevelopment())
             {
-                app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader());
+                app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod());
             }
 
             app.UseDefaultFiles();

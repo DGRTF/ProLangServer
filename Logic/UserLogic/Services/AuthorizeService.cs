@@ -9,40 +9,63 @@ namespace UserLogic.Services;
 public class AuthorizeService : IAuthorizeService
 {
     private readonly IAuthorizeRepository _authorizeRepository;
+    private readonly IConfirmMailService _mailService;
     private readonly IJwtGenerator _jwtGeneration;
+    private readonly string _passwordSymbols = "Aa1!";
 
     public AuthorizeService(
         IAuthorizeRepository authorizeRepository,
+        IConfirmMailService mailService,
         IJwtGenerator jwtGeneration)
     {
         _authorizeRepository = authorizeRepository;
+        this._mailService = mailService;
         _jwtGeneration = jwtGeneration;
     }
 
     /// <inheritdoc />
-    public async Task<string> RegisterUser(RegisterUser user)
+    public async Task<RegisterUserResponse> RegisterUser(RegisterUser user)
     {
-        var registerUserResponse = await _authorizeRepository.RegisterUser(user);
-
-        if (!registerUserResponse.Succeeded)
-            return string.Empty;
-
-        return registerUserResponse.Token;
+        return await _authorizeRepository.RegisterUser(user);
     }
 
     /// <inheritdoc />
-    public async Task<string> GetToken(LoginUser user)
+    public async Task<AuthorizeUserResponse> Login(LoginUser user)
     {
-        var loginUserResponse = await _authorizeRepository.Login(user);
+        var result = await _authorizeRepository.Login(user);
 
-        return GetJwt(user.Email, loginUserResponse);
+        if (!result.Succeeded)
+            return result;
+
+        var token = GetJwt(user.Email, result);
+
+        return new AuthorizeUserResponse(result, token);
     }
 
-    public async Task<string> ConfirmEmail(ConfirmUserEmail model)
+    /// <inheritdoc />
+    public async Task<AuthorizeUserResponse> ConfirmEmail(ConfirmUserEmail model)
     {
         var loginUserResponse = await _authorizeRepository.ConfirmEmail(model);
 
-        return GetJwt(model.Email, loginUserResponse);
+        if (!loginUserResponse.Succeeded)
+            return loginUserResponse;
+
+        var token = GetJwt(model.Email, loginUserResponse);
+
+        return new AuthorizeUserResponse(loginUserResponse, token);
+    }
+
+    /// <inheritdoc />
+    public async Task<AuthorizeUserResponse> ChangePassword(ChangePassword model)
+    {
+        var result = await _authorizeRepository.ChangePassword(model);
+
+        if (!result.Succeeded)
+            return result;
+
+        var token = GetJwt(model.Email, result);
+
+        return new AuthorizeUserResponse(result, token);
     }
 
     private string GetJwt(string email, AuthorizeUserResponse response)
@@ -57,5 +80,25 @@ public class AuthorizeService : IAuthorizeService
         };
 
         return _jwtGeneration.GetJwt(claims);
+    }
+
+    /// <inheritdoc />
+    public async Task<ResetPasswordResponse> ResetPassword(ConfirmUserEmail model)
+    {
+        model.NewPassword = Guid.NewGuid().ToString();
+        var result = await _authorizeRepository.ResetPassword(model);
+
+        if (!result.Succeeded)
+            return result;
+
+        await _mailService.SendNewPassword(model.NewPassword, model.Email);
+
+        return result;
+    }
+
+    /// <inheritdoc />
+    public async Task<RegisterUserResponse> ForgotPassword(string email)
+    {
+        return await _authorizeRepository.ForgotPassword(email);
     }
 }

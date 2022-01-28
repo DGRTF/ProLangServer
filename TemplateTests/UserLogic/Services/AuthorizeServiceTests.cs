@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -15,12 +16,12 @@ namespace TemplateTests.UserLogic.Services;
 public class AuthorizeServiceTests
 {
     private readonly AutoMock _mock;
-    private readonly AuthorizeService _repository;
+    private readonly AuthorizeService _authorizeService;
 
     public AuthorizeServiceTests()
     {
         _mock = AutoMock.GetLoose();
-        _repository = _mock.Create<AuthorizeService>();
+        _authorizeService = _mock.Create<AuthorizeService>();
     }
 
     [Fact]
@@ -36,10 +37,10 @@ public class AuthorizeServiceTests
         _mock.Mock<IJwtGenerator>()
             .Setup(x => x.GetJwt(It.IsAny<IReadOnlyCollection<Claim>>()))
             .Returns(expected);
-            
-        var actual = await _repository.ConfirmEmail(new ConfirmUserEmail());
 
-        Assert.Equal(actual, string.Empty);
+        var actual = await _authorizeService.ConfirmEmail(new ConfirmUserEmail());
+
+        Assert.Equal(actual.Token, string.Empty);
     }
 
     [Fact]
@@ -55,8 +56,57 @@ public class AuthorizeServiceTests
             .Setup(x => x.GetJwt(It.IsAny<IReadOnlyCollection<Claim>>()))
             .Returns(expected);
 
-        var actual = await _repository.ConfirmEmail(new ConfirmUserEmail());
+        var actual = await _authorizeService.ConfirmEmail(new ConfirmUserEmail());
 
-        Assert.Equal(actual, expected);
+        Assert.Equal(actual.Token, expected);
+    }
+
+    [Fact]
+    public async Task ResetPassword_RepositorySuccessReset_SendPasswordToEmail()
+    {
+        _mock.Mock<IAuthorizeRepository>()
+            .Setup(x => x.ResetPassword(It.IsAny<ConfirmUserEmail>()))
+            .Returns(Task.FromResult(new ResetPasswordResponse(true)));
+
+        var actualEmail = string.Empty;
+        var actualPassword = string.Empty;
+
+        _mock.Mock<IConfirmMailService>()
+            .Setup(x => x.SendNewPassword(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns((string x, string y) =>
+            {
+                actualPassword = x;
+                actualEmail = y;
+
+                return Task.FromResult(true);
+            });
+
+        var email = "email";
+
+        await _authorizeService.ResetPassword(new ConfirmUserEmail { Email = email });
+
+        Assert.Equal(email, actualEmail);
+        Assert.True(!string.IsNullOrWhiteSpace(actualPassword));
+    }
+
+    [Fact]
+    public async Task ResetPassword_RepositoryUnsuccessReset_NotSendPasswordToEmail()
+    {
+        _mock.Mock<IAuthorizeRepository>()
+            .Setup(x => x.ResetPassword(It.IsAny<ConfirmUserEmail>()))
+            .Returns(Task.FromResult(new ResetPasswordResponse(false)));
+
+        var actualEmail = string.Empty;
+        var actualPassword = string.Empty;
+
+        _mock.Mock<IConfirmMailService>()
+            .Setup(x => x.SendNewPassword(It.IsAny<string>(), It.IsAny<string>()));
+
+        await _authorizeService.ResetPassword(new ConfirmUserEmail());
+        
+        Assert.ThrowsAny<Exception>(() =>
+        {
+            _mock.Mock<IConfirmMailService>().Verify(x => x.SendNewPassword(string.Empty, string.Empty));
+        });
     }
 }
