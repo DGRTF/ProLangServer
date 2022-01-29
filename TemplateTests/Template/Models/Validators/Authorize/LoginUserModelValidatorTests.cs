@@ -20,7 +20,7 @@ public class LoginUserModelValidatorTests
     [InlineData("email@")]
     public void ShouldHaveValidationErrorForEmail(string email)
     {
-        var model = ValidGetOrdersModel();
+        var model = ValidGetLoginUserModel();
         model.Email = email;
 
         var result = _validator.TestValidate(model);
@@ -34,9 +34,10 @@ public class LoginUserModelValidatorTests
     [InlineData("0A")]
     [InlineData("0Aa")]
     [InlineData("0Aa-")]
+    [InlineData("0Aa-!12")]
     public void ShouldHaveValidationErrorForPassword(string password)
     {
-        var model = ValidGetOrdersModel();
+        var model = ValidGetLoginUserModel();
         model.Password = password;
 
         var result = _validator.TestValidate(model);
@@ -47,7 +48,7 @@ public class LoginUserModelValidatorTests
     [Fact]
     public void ShouldNotHaveValidationErrorForTakeEmail()
     {
-        var model = ValidGetOrdersModel();
+        var model = ValidGetLoginUserModel();
 
         var result = _validator.TestValidate(model);
 
@@ -57,14 +58,14 @@ public class LoginUserModelValidatorTests
     [Fact]
     public void ShouldNotHaveValidationErrorForTakePassword()
     {
-        var model = ValidGetOrdersModel();
+        var model = ValidGetLoginUserModel();
 
         var result = _validator.TestValidate(model);
 
         result.ShouldNotHaveValidationErrorFor(nameof(model.Password));
     }
 
-    private LoginUserModel ValidGetOrdersModel() =>
+    private LoginUserModel ValidGetLoginUserModel() =>
         new LoginUserModel
         {
             Email = "email@mail.ru",

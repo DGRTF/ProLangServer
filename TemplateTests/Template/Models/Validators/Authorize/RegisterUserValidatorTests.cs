@@ -20,7 +20,7 @@ public class RegisterUserValidatorTests
     [InlineData("email@")]
     public void ShouldHaveValidationErrorForEmail(string email)
     {
-        var model = ValidGetOrdersModel();
+        var model = GetValidRegisterUserModel();
         model.Email = email;
 
         var result = _validator.TestValidate(model);
@@ -36,7 +36,7 @@ public class RegisterUserValidatorTests
     [InlineData("0Aa-")]
     public void ShouldHaveValidationErrorForPassword(string password)
     {
-        var model = ValidGetOrdersModel();
+        var model = GetValidRegisterUserModel();
         model.Password = password;
 
         var result = _validator.TestValidate(model);
@@ -47,7 +47,7 @@ public class RegisterUserValidatorTests
     [Fact]
     public void ShouldNotHaveValidationErrorForTakeEmail()
     {
-        var model = ValidGetOrdersModel();
+        var model = GetValidRegisterUserModel();
 
         var result = _validator.TestValidate(model);
 
@@ -57,14 +57,14 @@ public class RegisterUserValidatorTests
     [Fact]
     public void ShouldNotHaveValidationErrorForTakePassword()
     {
-        var model = ValidGetOrdersModel();
+        var model = GetValidRegisterUserModel();
 
         var result = _validator.TestValidate(model);
 
         result.ShouldNotHaveValidationErrorFor(nameof(model.Password));
     }
 
-    private RegisterUserModel ValidGetOrdersModel() =>
+    private RegisterUserModel GetValidRegisterUserModel() =>
         new RegisterUserModel
         {
             Email = "email@mail.ru",

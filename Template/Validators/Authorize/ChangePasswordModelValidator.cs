@@ -20,6 +20,8 @@ public class ChangePasswordModelValidator : AbstractValidator<ChangePasswordMode
         RuleFor(x => x.NewPassword)
             .MinimumLength(8)
             .MaximumLength(36)
-            .Must(x => CommonValidatorContants.ValidatePasswordRegex.Matches(x).Any());
+            .Must((x, y) =>
+                CommonValidatorContants.ValidatePasswordRegex.Matches(y).Any() &&
+                x.Password != y);
     }
 }

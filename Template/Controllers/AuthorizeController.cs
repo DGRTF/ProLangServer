@@ -80,7 +80,6 @@ public class AuthorizeController : ControllerBase
     public async Task<SucceededAuthorize> ConfirmEmail([FromQuery] ConfirmUserEmailModel model)
     {
         var mapModel = _mapper.Map<ConfirmUserEmail>(model);
-
         var result = await _authorizeService.ConfirmEmail(mapModel);
 
         if (!result.Succeeded)

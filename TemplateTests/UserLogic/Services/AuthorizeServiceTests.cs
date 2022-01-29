@@ -25,12 +25,11 @@ public class AuthorizeServiceTests
     }
 
     [Fact]
-    public async Task ServiceConfirmEmailReturnFalse_ReturnEmptyToken()
+    public async Task ConfirmEmail_RepositoryConfirmEmailReturnFalse_ReturnEmptyToken()
     {
-        var u = new User(new Role("dg"), "email", "name");
         _mock.Mock<IAuthorizeRepository>()
             .Setup(x => x.ConfirmEmail(It.IsAny<ConfirmUserEmail>()))
-            .Returns(Task.FromResult(new AuthorizeUserResponse(false, "User")));
+            .Returns(Task.FromResult(new AuthorizeUserResponse(false, new[] { "User" })));
 
         var expected = "returnToken";
 
@@ -44,11 +43,11 @@ public class AuthorizeServiceTests
     }
 
     [Fact]
-    public async Task ServiceConfirmEmailReturnTrue_ReturnNotEmptyToken()
+    public async Task ConfirmEmail_RepositoryConfirmEmailReturnTrue_ReturnNotEmptyToken()
     {
         _mock.Mock<IAuthorizeRepository>()
             .Setup(x => x.ConfirmEmail(It.IsAny<ConfirmUserEmail>()))
-            .Returns(Task.FromResult(new AuthorizeUserResponse(true, "User")));
+            .Returns(Task.FromResult(new AuthorizeUserResponse(true, new[] { "User" })));
 
         var expected = "returnToken";
 
@@ -57,6 +56,43 @@ public class AuthorizeServiceTests
             .Returns(expected);
 
         var actual = await _authorizeService.ConfirmEmail(new ConfirmUserEmail());
+
+        Assert.Equal(actual.Token, expected);
+    }
+
+
+    [Fact]
+    public async Task Login_RepositoryLoginReturnFalse_ReturnEmptyToken()
+    {
+        _mock.Mock<IAuthorizeRepository>()
+            .Setup(x => x.Login(It.IsAny<LoginUser>()))
+            .Returns(Task.FromResult(new AuthorizeUserResponse(false, new[] { "User" })));
+
+        var expected = "returnToken";
+
+        _mock.Mock<IJwtGenerator>()
+            .Setup(x => x.GetJwt(It.IsAny<IReadOnlyCollection<Claim>>()))
+            .Returns(expected);
+
+        var actual = await _authorizeService.Login(new LoginUser());
+
+        Assert.Equal(actual.Token, string.Empty);
+    }
+
+    [Fact]
+    public async Task Login_RepositoryLoginReturnTrue_ReturnNotEmptyToken()
+    {
+        _mock.Mock<IAuthorizeRepository>()
+            .Setup(x => x.Login(It.IsAny<LoginUser>()))
+            .Returns(Task.FromResult(new AuthorizeUserResponse(true, new[] { "User" })));
+
+        var expected = "returnToken";
+
+        _mock.Mock<IJwtGenerator>()
+            .Setup(x => x.GetJwt(It.IsAny<IReadOnlyCollection<Claim>>()))
+            .Returns(expected);
+
+        var actual = await _authorizeService.Login(new LoginUser());
 
         Assert.Equal(actual.Token, expected);
     }
@@ -103,7 +139,7 @@ public class AuthorizeServiceTests
             .Setup(x => x.SendNewPassword(It.IsAny<string>(), It.IsAny<string>()));
 
         await _authorizeService.ResetPassword(new ConfirmUserEmail());
-        
+
         Assert.ThrowsAny<Exception>(() =>
         {
             _mock.Mock<IConfirmMailService>().Verify(x => x.SendNewPassword(string.Empty, string.Empty));
