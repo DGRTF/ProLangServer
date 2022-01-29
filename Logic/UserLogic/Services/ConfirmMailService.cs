@@ -19,24 +19,24 @@ public class ConfirmMailService : IConfirmMailService
     public async Task SendMessage(string link, string email)
     {
         var text = $"Подтвердите регистрацию, перейдя по ссылке: <a href='{link}'>Подтвердить</a>";
-        await SendHtml(email, text);
+        await SendHtml(email, _options.ConfirmEmail.Subject, text);
     }
 
     /// <inheritdoc />
     public async Task SendChangePasswordLink(string link, string email)
     {
         var text = $"Поменяйте пароль, перейдя по ссылке: <a href='{link}'>Подтвердить</a>";
-        await SendHtml(email, text);
+        await SendHtml(email, _options.NewPassword.Subject, text);
     }
 
     /// <inheritdoc />
     public async Task SendNewPassword(string password, string email)
     {
         var text = $"Ваш новый пароль: {password}";
-        await SendHtml(email, text);
+        await SendHtml(email, _options.NewPassword.Subject, text);
     }
 
-    private async Task SendHtml(string email, string text)
+    private async Task SendHtml(string email, string subject, string text)
     {
         try
         {
@@ -45,7 +45,7 @@ public class ConfirmMailService : IConfirmMailService
 
             emailMessage.From.Add(new MailboxAddress(confirmEmail.By, _options.Email));
             emailMessage.To.Add(new MailboxAddress(confirmEmail.To, email));
-            emailMessage.Subject = confirmEmail.Subject;
+            emailMessage.Subject = subject;
 
             emailMessage.Body = new TextPart(MimeKit.Text.TextFormat.Html)
             {

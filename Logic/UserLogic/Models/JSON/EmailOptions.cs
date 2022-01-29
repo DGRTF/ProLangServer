@@ -21,6 +21,11 @@ public class EmailOptions
     public ConfirmEmail ConfirmEmail { get; set; } = new ConfirmEmail();
 
     /// <summary>
+    /// Представляет настройки отправки нового пароля по электронной почте
+    /// </summary>
+    public ResetPasswordOptions NewPassword { get; set; } = new ResetPasswordOptions();
+
+    /// <summary>
     /// Настройки для подключения к серверу электронной почты
     /// </summary>
     public EmailHostOptions Host { get; set; } = new EmailHostOptions();
