@@ -46,26 +46,32 @@ namespace Template
                 .AddEntityFrameworkStores<AuthorizeContext>()
                 .AddDefaultTokenProviders();
 
-            services.AddAuthorization(options =>
-            {
-                // options.FallbackPolicy = new AuthorizationPolicyBuilder()
-                    // .RequireAuthenticatedUser()
-                    // .Build();
-            });
+            // services.AddAuthorization(options =>
+            // {
+            // options.FallbackPolicy = new AuthorizationPolicyBuilder()
+            // .RequireAuthenticatedUser()
+            // .Build();
+            // });
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddJwtBearer(options =>
+            services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options =>
+                {
+                    options.RequireHttpsMetadata = true;
+                    options.TokenValidationParameters = new TokenValidationParameters
                     {
-                        options.RequireHttpsMetadata = false;
-                        options.TokenValidationParameters = new TokenValidationParameters
-                        {
-                            ValidateIssuer = false,
-                            ValidateAudience = false,
-                            ValidateLifetime = true,
-                            IssuerSigningKey = _appConfigureModel.JWTAuthOptions.GetSymmetricSecurityKey(),
-                            ValidateIssuerSigningKey = true,
-                        };
-                    });
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidIssuer = _appConfigureModel.JWTAuthOptions.Issuer,
+                        ValidAudience = _appConfigureModel.JWTAuthOptions.Audience,
+                        IssuerSigningKey = _appConfigureModel.JWTAuthOptions.GetSymmetricSecurityKey(),
+                        ValidateIssuerSigningKey = true,
+                    };
+                });
 
             services.AddControllers();
             services.AddSwaggerDocument();
@@ -105,7 +111,6 @@ namespace Template
 
             app.UseDefaultFiles();
             app.UseStaticFiles();
-            app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseWebSockets();

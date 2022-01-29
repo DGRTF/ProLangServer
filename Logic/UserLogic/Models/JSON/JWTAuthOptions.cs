@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
@@ -17,6 +18,16 @@ public class JWTAuthOptions
     /// Время жизни токена
     /// </summary>
     public int LifeTime { get; set; }
+
+    /// <summary>
+    /// Издатель токена
+    /// </summary>
+    public string Issuer { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Потребитель токена
+    /// </summary>
+    public string Audience { get; set; } = string.Empty;
 
     /// <summary>
     /// Класс шифрования токена

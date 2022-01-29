@@ -73,8 +73,8 @@ public class AuthorizeService : IAuthorizeService
         if (!response.Succeeded)
             return string.Empty;
 
-        var claims = response.Roles.Select(x => new Claim("role", x)).ToList();
-        claims.Add(new Claim("email", email));
+        var claims = response.Roles.Select(x => new Claim(ClaimsIdentity.DefaultRoleClaimType, x)).ToList();
+        claims.Add(new Claim(ClaimsIdentity.DefaultNameClaimType, email));
 
         return _jwtGeneration.GetJwt(claims);
     }

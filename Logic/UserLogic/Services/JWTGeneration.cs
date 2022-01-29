@@ -22,8 +22,8 @@ public class JWTGeneration : IJwtGenerator
         var now = DateTime.Now;
 
         var jwtSecurityToken = new JwtSecurityToken(
-            string.Empty,
-            string.Empty,
+            _jwtAuthOptions.Issuer,
+            _jwtAuthOptions.Audience,
             claims,
             now,
             now.Add(TimeSpan.FromMinutes(_jwtAuthOptions.LifeTime)),
