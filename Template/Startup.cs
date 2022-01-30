@@ -2,9 +2,9 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Template.Configure;
@@ -13,6 +13,7 @@ using TemplateDataLayer.Contexts;
 using TemplateDataLayer.Models.Authorize;
 using static System.Net.Mime.MediaTypeNames;
 
+[assembly: ApiController]
 namespace Template
 {
     public class Startup
@@ -73,7 +74,7 @@ namespace Template
                     };
                 });
 
-            services.AddControllers();
+            services.AddControllers(x => x.Filters.Add(new ProducesAttribute("application/json")));
             services.AddSwaggerDocument();
             services.AddCors();
         }
