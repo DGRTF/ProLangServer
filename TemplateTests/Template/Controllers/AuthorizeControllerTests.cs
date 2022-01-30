@@ -9,6 +9,8 @@ using Xunit;
 using Template.Models.Configure;
 using Autofac;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace TemplateTests.Template.Controllers;
 
@@ -38,7 +40,7 @@ public class AuthorizeControllerTests
     }
 
     [Fact]
-    public async Task RegisterUser_AuthorizeServiceRegisterUserReturnUnsuccessResult_ThrowException()
+    public async Task RegisterUser_AuthorizeServiceRegisterUserReturnUnsuccessResult_Response400()
     {
         var errorMessage = "errorMessage";
 
@@ -46,9 +48,11 @@ public class AuthorizeControllerTests
             .Setup(x => x.RegisterUser(It.IsAny<RegisterUser>()))
             .Returns(Task.FromResult(new RegisterUserResponse(errorMessage)));
 
-        var exception = await Assert.ThrowsAsync<BadHttpRequestException>(() => _authorize.RegisterUser(_registerUser));
+        var response = await _authorize.RegisterUser(_registerUser);
+        var actual = response as BadRequestObjectResult;
 
-        Assert.Equal(exception.Message, errorMessage);
+        Assert.Equal(actual.StatusCode, StatusCodes.Status400BadRequest);
+        Assert.Equal(actual.Value, errorMessage);
     }
 
     [Fact]
@@ -64,7 +68,7 @@ public class AuthorizeControllerTests
     }
 
     [Fact]
-    public async Task ForgotPassword_AuthorizeServiceForgotPasswordReturnUnsuccessResult_ThrowException()
+    public async Task ForgotPassword_AuthorizeServiceForgotPasswordReturnUnsuccessResult_Response400()
     {
         var errorMessage = "errorMessage";
 
@@ -72,23 +76,28 @@ public class AuthorizeControllerTests
             .Setup(x => x.ForgotPassword(It.IsAny<string>()))
             .Returns(Task.FromResult(new RegisterUserResponse(errorMessage)));
 
-        var exception = await Assert.ThrowsAsync<BadHttpRequestException>(() => _authorize.ForgotPassword(_registerUser.Email));
+        var response = await _authorize.ForgotPassword(_registerUser.Email);
+        var actual = response as BadRequestObjectResult;
 
-        Assert.Equal(exception.Message, errorMessage);
+        Assert.Equal(actual.StatusCode, StatusCodes.Status400BadRequest);
+        Assert.Equal(actual.Value, errorMessage);
     }
 
     [Fact]
-    public async Task ForgotPassword_AuthorizeServiceForgotPasswordReturnSuccessResult_NotThrowException()
+    public async Task ForgotPassword_AuthorizeServiceForgotPasswordReturnSuccessResult_NotResponse400()
     {
         _mock.Mock<IAuthorizeService>()
             .Setup(x => x.ForgotPassword(_registerUser.Email))
             .Returns(Task.FromResult(new RegisterUserResponse(true, "token")));
 
-        await _authorize.ForgotPassword(_registerUser.Email);
+        var response = await _authorize.ForgotPassword(_registerUser.Email);
+        var actual = response as NoContentResult;
+
+        Assert.Equal(actual.StatusCode, StatusCodes.Status204NoContent);
     }
-    
+
     [Fact]
-    public async Task ResetPassword_AuthorizeServiceForgotPasswordReturnUnsuccessResult_ThrowException()
+    public async Task ResetPassword_AuthorizeServiceForgotPasswordReturnUnsuccessResult_Response400()
     {
         var errorMessage = "errorMessage";
 
@@ -96,23 +105,28 @@ public class AuthorizeControllerTests
             .Setup(x => x.ResetPassword(It.IsAny<ConfirmUserEmail>()))
             .Returns(Task.FromResult(new ResetPasswordResponse(errorMessage)));
 
-        var exception = await Assert.ThrowsAsync<BadHttpRequestException>(() => _authorize.ResetPassword(new ConfirmUserEmailModel()));
+        var response = await _authorize.ResetPassword(new ConfirmUserEmailModel());
+        var actual = response as BadRequestObjectResult;
 
-        Assert.Equal(exception.Message, errorMessage);
+        Assert.Equal(actual.StatusCode, StatusCodes.Status400BadRequest);
+        Assert.Equal(actual.Value, errorMessage);
     }
 
     [Fact]
-    public async Task ResetPassword_AuthorizeServiceForgotPasswordReturnSuccessResult_NotThrowException()
+    public async Task ResetPassword_AuthorizeServiceForgotPasswordReturnSuccessResult_NotResponse400()
     {
         _mock.Mock<IAuthorizeService>()
             .Setup(x => x.ResetPassword(It.IsAny<ConfirmUserEmail>()))
             .Returns(Task.FromResult(new ResetPasswordResponse(true)));
 
-        await _authorize.ResetPassword(new ConfirmUserEmailModel());
+        var response = await _authorize.ResetPassword(new ConfirmUserEmailModel());
+        var actual = response as NoContentResult;
+
+        Assert.Equal(actual.StatusCode, StatusCodes.Status204NoContent);
     }
 
     [Fact]
-    public async Task ChangePassword_AuthorizeServiceForgotPasswordReturnUnsuccessResult_ThrowException()
+    public async Task ChangePassword_AuthorizeServiceForgotPasswordReturnUnsuccessResult_Response400()
     {
         var errorMessage = "errorMessage";
 
@@ -120,9 +134,11 @@ public class AuthorizeControllerTests
             .Setup(x => x.ChangePassword(It.IsAny<ChangePassword>()))
             .Returns(Task.FromResult(new AuthorizeUserResponse(errorMessage)));
 
-        var exception = await Assert.ThrowsAsync<BadHttpRequestException>(() => _authorize.ChangePassword(_changePasswordModel));
+        var response = await _authorize.ChangePassword(_changePasswordModel);
+        var actual = (response as IConvertToActionResult).Convert() as BadRequestObjectResult;
 
-        Assert.Equal(exception.Message, errorMessage);
+        Assert.Equal(actual.StatusCode, StatusCodes.Status400BadRequest);
+        Assert.Equal(actual.Value, errorMessage);
     }
 
     [Fact]
@@ -136,11 +152,11 @@ public class AuthorizeControllerTests
 
         var actual = await _authorize.ChangePassword(_changePasswordModel);
 
-        Assert.Equal(actual.Token, token);
+        Assert.Equal(actual.Value.Token, token);
     }
 
     [Fact]
-    public async Task ConfirmEmail_AuthorizeServiceForgotPasswordReturnUnsuccessResult_ThrowException()
+    public async Task ConfirmEmail_AuthorizeServiceForgotPasswordReturnUnsuccessResult_Response400()
     {
         var errorMessage = "errorMessage";
 
@@ -148,9 +164,11 @@ public class AuthorizeControllerTests
             .Setup(x => x.ConfirmEmail(It.IsAny<ConfirmUserEmail>()))
             .Returns(Task.FromResult(new AuthorizeUserResponse(errorMessage)));
 
-        var exception = await Assert.ThrowsAsync<BadHttpRequestException>(() => _authorize.ConfirmEmail(new ConfirmUserEmailModel()));
+        var response = await _authorize.ConfirmEmail(new ConfirmUserEmailModel());
+        var actual = (response as IConvertToActionResult).Convert() as BadRequestObjectResult;
 
-        Assert.Equal(exception.Message, errorMessage);
+        Assert.Equal(actual.StatusCode, StatusCodes.Status400BadRequest);
+        Assert.Equal(actual.Value, errorMessage);
     }
 
     [Fact]
@@ -164,11 +182,11 @@ public class AuthorizeControllerTests
 
         var actual = await _authorize.ConfirmEmail(new ConfirmUserEmailModel());
 
-        Assert.Equal(actual.Token, token);
+        Assert.Equal(actual.Value.Token, token);
     }
-    
+
     [Fact]
-    public async Task GetToken_AuthorizeServiceForgotPasswordReturnUnsuccessResult_ThrowException()
+    public async Task GetToken_AuthorizeServiceForgotPasswordReturnUnsuccessResult_Response400()
     {
         var errorMessage = "errorMessage";
 
@@ -176,9 +194,11 @@ public class AuthorizeControllerTests
             .Setup(x => x.Login(It.IsAny<LoginUser>()))
             .Returns(Task.FromResult(new AuthorizeUserResponse(errorMessage)));
 
-        var exception = await Assert.ThrowsAsync<BadHttpRequestException>(() => _authorize.GetToken(new LoginUserModel()));
+        var response = await _authorize.GetToken(new LoginUserModel());
+        var actual = (response as IConvertToActionResult).Convert() as BadRequestObjectResult;
 
-        Assert.Equal(exception.Message, errorMessage);
+        Assert.Equal(actual.StatusCode, StatusCodes.Status400BadRequest);
+        Assert.Equal(actual.Value, errorMessage);
     }
 
     [Fact]
@@ -192,6 +212,6 @@ public class AuthorizeControllerTests
 
         var actual = await _authorize.GetToken(new LoginUserModel());
 
-        Assert.Equal(actual.Token, token);
+        Assert.Equal(actual.Value.Token, token);
     }
 }

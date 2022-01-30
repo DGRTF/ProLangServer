@@ -9,7 +9,6 @@ using UserLogic.Services.Interfaces;
 /// <summary>
 /// Контроллер авторизации
 /// </summary>
-[ApiController]
 [AllowAnonymous]
 [Route("api/[controller]/[action]")]
 public class AuthorizeController : ControllerBase
@@ -41,13 +40,15 @@ public class AuthorizeController : ControllerBase
     /// <param name="user">Модель для получения токена авторизации</param>
     /// <returns>Jwt</returns>
     [HttpGet("token")]
-    public async Task<SucceededAuthorize> GetToken([FromQuery] LoginUserModel user)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<SucceededAuthorize>> GetToken([FromQuery] LoginUserModel user)
     {
         var mapUser = _mapper.Map<LoginUser>(user);
         var result = await _authorizeService.Login(mapUser);
 
         if (!result.Succeeded)
-            throw new BadHttpRequestException(result.Error);
+            return BadRequest(result.Error);
 
         return new SucceededAuthorize(result.Token);
     }
@@ -57,18 +58,21 @@ public class AuthorizeController : ControllerBase
     /// </summary>
     /// <param name="user">Модель регистрации пользователя</param>
     [HttpPost]
-    public async Task RegisterUser([FromBody] RegisterUserModel user)
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> RegisterUser([FromBody] RegisterUserModel user)
     {
         var mapModel = _mapper.Map<RegisterUser>(user);
         var result = await _authorizeService.RegisterUser(mapModel);
 
         if (!result.Succeeded)
-            throw new BadHttpRequestException(result.Error);
+            return BadRequest(result.Error);
 
         var escapeToken = Uri.EscapeDataString(result.Token);
         var uri = new Uri(@$"{_address}ConfirmEmail?email={user.Email}&token={escapeToken}").ToString();
-
         await _mailSetvice.SendMessage(uri, user.Email);
+
+        return Created(string.Empty, null);
     }
 
     /// <summary>
@@ -77,13 +81,15 @@ public class AuthorizeController : ControllerBase
     /// <param name="model"></param>
     /// <returns>Jwt</returns>
     [HttpGet]
-    public async Task<SucceededAuthorize> ConfirmEmail([FromQuery] ConfirmUserEmailModel model)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<SucceededAuthorize>> ConfirmEmail([FromQuery] ConfirmUserEmailModel model)
     {
         var mapModel = _mapper.Map<ConfirmUserEmail>(model);
         var result = await _authorizeService.ConfirmEmail(mapModel);
 
         if (!result.Succeeded)
-            throw new BadHttpRequestException(result.Error);
+            return BadRequest(result.Error);
 
         return new SucceededAuthorize(result.Token);
     }
@@ -93,16 +99,20 @@ public class AuthorizeController : ControllerBase
     /// </summary>
     /// <param name="email">Электронная почта пользователя</param>
     [HttpGet]
-    public async Task ForgotPassword([FromQuery] string email)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> ForgotPassword([FromQuery] string email)
     {
         var result = await _authorizeService.ForgotPassword(email);
 
         if (!result.Succeeded)
-            throw new BadHttpRequestException(result.Error);
+            return BadRequest(result.Error);
 
         var escapeToken = Uri.EscapeDataString(result.Token);
         var link = new Uri(@$"{_address}ResetPassword?email={email}&token={escapeToken}").ToString();
         await _mailSetvice.SendChangePasswordLink(link, email);
+
+        return NoContent();
     }
 
     /// <summary>
@@ -110,13 +120,17 @@ public class AuthorizeController : ControllerBase
     /// </summary>
     /// <param name="model">Модель сброса пароля</param>
     [HttpGet]
-    public async Task ResetPassword([FromQuery] ConfirmUserEmailModel model)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> ResetPassword([FromQuery] ConfirmUserEmailModel model)
     {
         var mapModel = _mapper.Map<ConfirmUserEmail>(model);
         var result = await _authorizeService.ResetPassword(mapModel);
 
         if (!result.Succeeded)
-            throw new BadHttpRequestException(result.Error);
+            return BadRequest(result.Error);
+
+        return NoContent();
     }
 
     /// <summary>
@@ -125,13 +139,15 @@ public class AuthorizeController : ControllerBase
     /// <param name="model">Модель смены пароля</param>
     /// <returns>Jwt</returns>
     [HttpPut]
-    public async Task<SucceededAuthorize> ChangePassword([FromBody] ChangePasswordModel model)
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<SucceededAuthorize>> ChangePassword([FromBody] ChangePasswordModel model)
     {
         var mapModel = _mapper.Map<ChangePassword>(model);
         var result = await _authorizeService.ChangePassword(mapModel);
 
         if (!result.Succeeded)
-            throw new BadHttpRequestException(result.Error);
+            return BadRequest(result.Error);
 
         return new SucceededAuthorize(result.Token);
     }
