@@ -12,7 +12,8 @@ public class MigrationContextFactory : IDesignTimeDbContextFactory<AuthorizeCont
         var optionsBuilder = new DbContextOptionsBuilder<AuthorizeContext>();
         ConfigurationBuilder builder = new ConfigurationBuilder();
         builder.SetBasePath(Directory.GetCurrentDirectory());
-        builder.AddJsonFile("appsettings.Development.json");
+        var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+        builder.AddJsonFile($"appsettings.{environment}.json");
 
         IConfigurationRoot config = builder.Build();
         string connectionString = config.Get<AppConfigure>().Db.PostgreSql.ConnectionString;
