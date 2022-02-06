@@ -17,7 +17,7 @@ public class JWTGeneration : IJwtGenerator
     }
 
     /// <inheritdoc />
-    public string GetJwt(IReadOnlyCollection<Claim> claims)
+    public string GetJwt(IReadOnlyList<Claim> claims)
     {
         var now = DateTime.Now;
 

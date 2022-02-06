@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Template.Configure;
-using Template.Models.Configure;
+using Template.Models;
 using TemplateDataLayer.Contexts;
 using TemplateDataLayer.Models.Authorize;
 using static System.Net.Mime.MediaTypeNames;

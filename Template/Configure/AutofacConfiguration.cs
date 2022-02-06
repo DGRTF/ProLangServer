@@ -4,10 +4,10 @@ using UserLogic.ExternalInterfaces;
 using UserLogic.Services;
 using UserLogic.Services.Interfaces;
 using TemplateDataLayer.Repositories;
-using Template.Models.Configure;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
 using FluentValidation.AspNetCore;
-using Template.Validators;
+using Api.Validators;
+using Template.Models;
 
 namespace Template.Configure;
 
@@ -31,7 +31,7 @@ public class AutofacConfiguration
         _container.Register(x => new JWTGeneration(_configure.JWTAuthOptions)).As<IJwtGenerator>().SingleInstance();
         _container.RegisterAutoMapper(typeof(Program).Assembly);
         _container.Register( x => new ConfirmMailService(_configure.Email)).As<IConfirmMailService>().SingleInstance();
-        _container.RegisterInstance(_configure.Host).As<Models.Configure.HostOptions>().SingleInstance();
+        _container.RegisterInstance(_configure.Host).As<Api.Models.Configure.HostOptions>().SingleInstance();
         RegisterSingleInstance<ValidatorInterceptor, IValidatorInterceptor>();
     }
 

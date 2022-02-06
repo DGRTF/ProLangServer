@@ -12,5 +12,5 @@ public interface IJwtGenerator
     /// </summary>
     /// <param name="claims">Коллекция представлений</param>
     /// <returns>Jwt</returns>
-    public string GetJwt(IReadOnlyCollection<Claim> claims);
+    public string GetJwt(IReadOnlyList<Claim> claims);
 }

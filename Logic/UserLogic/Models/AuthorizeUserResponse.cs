@@ -14,7 +14,7 @@ public class AuthorizeUserResponse
     /// В случае успеха заданные пользователю роли
     /// </summary>
     /// <value></value>
-    public IReadOnlyCollection<string> Roles { get; }
+    public IReadOnlyList<string> Roles { get; }
 
     /// <summary>
     /// Ошибка в случае неудачи
@@ -41,7 +41,7 @@ public class AuthorizeUserResponse
     /// </summary>
     /// <param name="succeeded">Успешность операции регистрации</param>
     /// <param name="role">В случае успеха присвоенная пользователю роль</param>
-    public AuthorizeUserResponse(bool succeeded, IReadOnlyCollection<string> roles)
+    public AuthorizeUserResponse(bool succeeded, IReadOnlyList<string> roles)
     {
         Succeeded = succeeded;
         Roles = succeeded ? roles : new List<string>();

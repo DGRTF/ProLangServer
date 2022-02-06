@@ -11,7 +11,6 @@ public class AuthorizeService : IAuthorizeService
     private readonly IAuthorizeRepository _authorizeRepository;
     private readonly IConfirmMailService _mailService;
     private readonly IJwtGenerator _jwtGeneration;
-    private readonly string _passwordSymbols = "Aa1!";
 
     public AuthorizeService(
         IAuthorizeRepository authorizeRepository,

@@ -1,5 +1,5 @@
+using Api.Models.RequestModels.Authorize;
 using AutoMapper;
-using Template.Models.RequestModels.Authorize;
 using UserLogic.Models;
 
 namespace Template.Configure;

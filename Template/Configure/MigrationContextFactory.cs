@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
-using Template.Models.Configure;
+using Template.Models;
 using TemplateDataLayer.Contexts;
 
 namespace Template.Configure;

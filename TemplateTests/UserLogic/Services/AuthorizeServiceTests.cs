@@ -4,7 +4,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Autofac.Extras.Moq;
 using Moq;
-using TemplateDataLayer.Models.Authorize;
 using UserLogic.ExternalInterfaces;
 using UserLogic.Models;
 using UserLogic.Services;
@@ -34,7 +33,7 @@ public class AuthorizeServiceTests
         var expected = "returnToken";
 
         _mock.Mock<IJwtGenerator>()
-            .Setup(x => x.GetJwt(It.IsAny<IReadOnlyCollection<Claim>>()))
+            .Setup(x => x.GetJwt(It.IsAny<IReadOnlyList<Claim>>()))
             .Returns(expected);
 
         var actual = await _authorizeService.ConfirmEmail(new ConfirmUserEmail());
@@ -52,7 +51,7 @@ public class AuthorizeServiceTests
         var expected = "returnToken";
 
         _mock.Mock<IJwtGenerator>()
-            .Setup(x => x.GetJwt(It.IsAny<IReadOnlyCollection<Claim>>()))
+            .Setup(x => x.GetJwt(It.IsAny<IReadOnlyList<Claim>>()))
             .Returns(expected);
 
         var actual = await _authorizeService.ConfirmEmail(new ConfirmUserEmail());
@@ -71,7 +70,7 @@ public class AuthorizeServiceTests
         var expected = "returnToken";
 
         _mock.Mock<IJwtGenerator>()
-            .Setup(x => x.GetJwt(It.IsAny<IReadOnlyCollection<Claim>>()))
+            .Setup(x => x.GetJwt(It.IsAny<IReadOnlyList<Claim>>()))
             .Returns(expected);
 
         var actual = await _authorizeService.Login(new LoginUser());
@@ -89,7 +88,7 @@ public class AuthorizeServiceTests
         var expected = "returnToken";
 
         _mock.Mock<IJwtGenerator>()
-            .Setup(x => x.GetJwt(It.IsAny<IReadOnlyCollection<Claim>>()))
+            .Setup(x => x.GetJwt(It.IsAny<IReadOnlyList<Claim>>()))
             .Returns(expected);
 
         var actual = await _authorizeService.Login(new LoginUser());

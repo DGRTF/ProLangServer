@@ -28,6 +28,7 @@
     <ProjectReference Include="..\TemplateDataLayer\TemplateDataLayer.csproj" />
     <ProjectReference Include="..\Logic\UserLogic\UserLogic.csproj" />
     <ProjectReference Include="..\Template\Template.csproj" />
+    <ProjectReference Include="..\Api\Api.csproj" />
   </ItemGroup>
 
 </Project>
