@@ -6,7 +6,6 @@ using UserLogic.Services.Interfaces;
 using TemplateDataLayer.Repositories;
 using AutoMapper.Contrib.Autofac.DependencyInjection;
 using FluentValidation.AspNetCore;
-using Api.Validators;
 using Template.Models;
 
 namespace Template.Configure;

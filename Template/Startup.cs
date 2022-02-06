@@ -1,3 +1,4 @@
+using Api.Controllers;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using FluentValidation.AspNetCore;
@@ -28,7 +29,7 @@ namespace Template
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
+            services.AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<AuthorizeController>());
 
             services.AddDbContext<AuthorizeContext>(x =>
                 x.UseNpgsql(_appConfigureModel.Db.PostgreSql.ConnectionString));
