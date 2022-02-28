@@ -11,10 +11,10 @@ public class RegisterUserValidator : AbstractValidator<RegisterUserModel>
     public RegisterUserValidator()
     {
         RuleFor(x => x.Email).EmailAddress();
-        
+
         RuleFor(x => x.Password)
-            .MinimumLength(8)
-            .MaximumLength(36)
+            .MinimumLength(CommonValidatorContants.PasswordMinLength)
+            .MaximumLength(CommonValidatorContants.PasswordMaxLength)
             .Must(x => CommonValidatorContants.ValidatePasswordRegex.Matches(x).Any());
     }
 }

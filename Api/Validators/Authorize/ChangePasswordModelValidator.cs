@@ -13,13 +13,13 @@ public class ChangePasswordModelValidator : AbstractValidator<ChangePasswordMode
         RuleFor(x => x.Email).EmailAddress();
 
         RuleFor(x => x.Password)
-            .MinimumLength(8)
-            .MaximumLength(36)
+            .MinimumLength(CommonValidatorContants.PasswordMinLength)
+            .MaximumLength(CommonValidatorContants.PasswordMaxLength)
             .Must(x => CommonValidatorContants.ValidatePasswordRegex.Matches(x).Any());
 
         RuleFor(x => x.NewPassword)
-            .MinimumLength(8)
-            .MaximumLength(36)
+            .MinimumLength(CommonValidatorContants.PasswordMinLength)
+            .MaximumLength(CommonValidatorContants.PasswordMaxLength)
             .Must((x, y) =>
                 CommonValidatorContants.ValidatePasswordRegex.Matches(y).Any() &&
                 x.Password != y);

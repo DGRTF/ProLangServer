@@ -10,7 +10,7 @@ public class ConfirmUserEmailModelValidator : AbstractValidator<ConfirmUserEmail
 {
     public ConfirmUserEmailModelValidator()
     {
-        RuleFor(x=> x.Email).EmailAddress();
-        RuleFor(x=>x.Token).NotEmpty();
+        RuleFor(x => x.Email).EmailAddress();
+        RuleFor(x => x.Token).NotEmpty();
     }
 }
