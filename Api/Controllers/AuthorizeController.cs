@@ -6,13 +6,14 @@ using Api.Models.ResponseModels.Authorize;
 using UserLogic.Models;
 using UserLogic.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
+using UserLogic.Services;
 
 namespace Api.Controllers;
 
 /// <summary>
 /// Контроллер авторизации
 /// </summary>
-[AllowAnonymous]
+[Authorize]
 [Route("api/[controller]/[action]")]
 public class AuthorizeController : ControllerBase
 {
@@ -43,6 +44,7 @@ public class AuthorizeController : ControllerBase
     /// <param name="user">Модель для получения токена авторизации</param>
     /// <returns>Jwt</returns>
     [HttpGet("token")]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<SucceededAuthorize>> GetToken([FromQuery] LoginUserModel user)
@@ -53,7 +55,7 @@ public class AuthorizeController : ControllerBase
         if (!result.Succeeded)
             return BadRequest(result.Error);
 
-        return new SucceededAuthorize(result.Token);
+        return new SucceededAuthorize(result.TokenPairs.Token, result.TokenPairs.RefreshToken);
     }
 
     /// <summary>
@@ -61,6 +63,7 @@ public class AuthorizeController : ControllerBase
     /// </summary>
     /// <param name="user">Модель регистрации пользователя</param>
     [HttpPost]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> RegisterUser([FromBody] RegisterUserModel user)
@@ -84,6 +87,7 @@ public class AuthorizeController : ControllerBase
     /// <param name="model"></param>
     /// <returns>Jwt</returns>
     [HttpGet]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<SucceededAuthorize>> ConfirmEmail([FromQuery] ConfirmUserEmailModel model)
@@ -94,7 +98,7 @@ public class AuthorizeController : ControllerBase
         if (!result.Succeeded)
             return BadRequest(result.Error);
 
-        return new SucceededAuthorize(result.Token);
+        return new SucceededAuthorize(result.TokenPairs.Token, result.TokenPairs.RefreshToken);
     }
 
     /// <summary>
@@ -102,6 +106,7 @@ public class AuthorizeController : ControllerBase
     /// </summary>
     /// <param name="email">Электронная почта пользователя</param>
     [HttpGet]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ForgotPassword([FromQuery] string email)
@@ -123,6 +128,7 @@ public class AuthorizeController : ControllerBase
     /// </summary>
     /// <param name="model">Модель сброса пароля</param>
     [HttpGet]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> ResetPassword([FromQuery] ConfirmUserEmailModel model)
@@ -142,6 +148,7 @@ public class AuthorizeController : ControllerBase
     /// <param name="model">Модель смены пароля</param>
     /// <returns>Jwt</returns>
     [HttpPut]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<SucceededAuthorize>> ChangePassword([FromBody] ChangePasswordModel model)
@@ -152,6 +159,23 @@ public class AuthorizeController : ControllerBase
         if (!result.Succeeded)
             return BadRequest(result.Error);
 
-        return new SucceededAuthorize(result.Token);
+        return new SucceededAuthorize(result.TokenPairs.Token, result.TokenPairs.RefreshToken);
+    }
+
+    /// <summary>
+    /// Выдает новую пару токенов на основе токена смены
+    /// Новый токен выдается в случае, если:
+    /// 1. Старый токен истек
+    /// 2. Токен смены для получения новой пары не истек
+    /// 3. С таким токеном смены пары ни разу не обращались к этому методу
+    /// </summary>
+    /// <returns>Новая пара токенов</returns>
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<ActionResult<SucceededAuthorize>> RefreshTokens()
+    {
+        var result = await _authorizeService.RefreshTokens(User.Claims.ToList());
+
+        return new SucceededAuthorize(result.Token, result.RefreshToken);
     }
 }

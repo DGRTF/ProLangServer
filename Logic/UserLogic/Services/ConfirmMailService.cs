@@ -1,5 +1,6 @@
 using MailKit.Net.Smtp;
 using MimeKit;
+using UserLogic.Models;
 using UserLogic.Models.JSON;
 using UserLogic.Services.Interfaces;
 

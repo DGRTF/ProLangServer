@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Api.Controllers;
+using System;
 
 namespace TemplateTests.Template.Controllers;
 
@@ -145,15 +146,15 @@ public class AuthorizeControllerTests
     [Fact]
     public async Task ChangePassword_AuthorizeServiceForgotPasswordReturnSuccessResult_ReturnToken()
     {
-        var token = "token";
+        var token = new TokenPairs("token", string.Empty);
 
         _mock.Mock<IAuthorizeService>()
             .Setup(x => x.ChangePassword(It.IsAny<ChangePassword>()))
-            .Returns(Task.FromResult(new AuthorizeUserResponse(new AuthorizeUserResponse(true, new List<string>()), token)));
+            .Returns(Task.FromResult(new AuthorizeUserResponse(new AuthorizeUserResponse(true, new List<string>(), Guid.Empty), token)));
 
         var actual = await _authorize.ChangePassword(_changePasswordModel);
 
-        Assert.Equal(actual.Value.Token, token);
+        Assert.Equal(actual.Value.Token, token.Token);
     }
 
     [Fact]
@@ -175,15 +176,15 @@ public class AuthorizeControllerTests
     [Fact]
     public async Task ConfirmEmail_AuthorizeServiceForgotPasswordReturnSuccessResult_ReturnToken()
     {
-        var token = "token";
+        var token = new TokenPairs("token", string.Empty);
 
         _mock.Mock<IAuthorizeService>()
             .Setup(x => x.ConfirmEmail(It.IsAny<ConfirmUserEmail>()))
-            .Returns(Task.FromResult(new AuthorizeUserResponse(new AuthorizeUserResponse(true, new List<string>()), token)));
+            .Returns(Task.FromResult(new AuthorizeUserResponse(new AuthorizeUserResponse(true, new List<string>(), Guid.Empty), token)));
 
         var actual = await _authorize.ConfirmEmail(new ConfirmUserEmailModel());
 
-        Assert.Equal(actual.Value.Token, token);
+        Assert.Equal(actual.Value.Token, token.Token);
     }
 
     [Fact]
@@ -205,14 +206,14 @@ public class AuthorizeControllerTests
     [Fact]
     public async Task GetToken_AuthorizeServiceForgotPasswordReturnSuccessResult_ReturnToken()
     {
-        var token = "token";
+        var token = new TokenPairs("token", string.Empty);
 
         _mock.Mock<IAuthorizeService>()
             .Setup(x => x.Login(It.IsAny<LoginUser>()))
-            .Returns(Task.FromResult(new AuthorizeUserResponse(new AuthorizeUserResponse(true, new List<string>()), token)));
+            .Returns(Task.FromResult(new AuthorizeUserResponse(new AuthorizeUserResponse(true, new List<string>(), Guid.Empty), token)));
 
         var actual = await _authorize.GetToken(new LoginUserModel());
 
-        Assert.Equal(actual.Value.Token, token);
+        Assert.Equal(actual.Value.Token, token.Token);
     }
 }

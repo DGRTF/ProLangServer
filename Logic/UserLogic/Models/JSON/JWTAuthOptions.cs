@@ -20,6 +20,11 @@ public class JWTAuthOptions
     public int LifeTime { get; set; }
 
     /// <summary>
+    /// Время жизни токена для получения новой пары
+    /// </summary>
+    public int RefreshLifeTime { get; set; }
+
+    /// <summary>
     /// Издатель токена
     /// </summary>
     public string Issuer { get; set; } = string.Empty;

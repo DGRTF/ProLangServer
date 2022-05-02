@@ -6,6 +6,7 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using FluentAssertions;
 using System.Linq;
+using System;
 
 namespace TemplateTests.UserLogic.Services;
 
@@ -18,7 +19,8 @@ public class JWTGenerationTests
         var options = new JWTAuthOptions
         {
             Key = "KeyKeyKeyKeyKeyKeyKeyKeyKeyKeyKeyKey",
-            LifeTime = 15
+            LifeTime = 15,
+            RefreshLifeTime = 1440,
         };
 
         _generator = new JWTGeneration(options);
@@ -33,9 +35,9 @@ public class JWTGenerationTests
             new Claim("role", "role"),
         };
 
-        var token = _generator.GetJwt(claims);
+        var token = _generator.GetJwt(claims, Guid.Empty);
 
-        var payloadBase65 = token.Split(".")[1];
+        var payloadBase65 = token.Token.Split(".")[1];
         var jsonPayload = Base64UrlEncoder.Decode(payloadBase65);
         var payload = JsonExtensions.DeserializeJwtPayload(jsonPayload);
 

@@ -21,7 +21,7 @@ public class AuthorizeRepository : IAuthorizeRepository
     {
         _roleManager = roleManager;
         _userManager = userManager;
-        this._context = context;
+        _context = context;
         _userManager.UserValidators.Clear();
     }
 
@@ -34,10 +34,10 @@ public class AuthorizeRepository : IAuthorizeRepository
             return new AuthorizeUserResponse("Пользователь с таким адресом электронной почты не был найден");
 
         var result = await _userManager.ConfirmEmailAsync(findUser, model.Token);
-        var rolesNames = findUser?.Roles?.Select(x => x.NormalizedName).ToList() ?? new List<string>();
+        var rolesNames = findUser.Roles?.Select(x => x.NormalizedName).ToList() ?? new List<string>();
 
         if (result.Succeeded)
-            return new AuthorizeUserResponse(true, rolesNames);
+            return new AuthorizeUserResponse(true, rolesNames, findUser.Id);
 
         return new AuthorizeUserResponse("Неверная ссылка для подтверждения пароля");
     }
@@ -58,9 +58,9 @@ public class AuthorizeRepository : IAuthorizeRepository
         if (!isValidPassword)
             return new AuthorizeUserResponse("Неправильный логин или пароль");
 
-        var rolesNames = findUser?.Roles?.Select(x => x.NormalizedName).ToList() ?? new List<string>();
+        var rolesNames = findUser.Roles?.Select(x => x.NormalizedName).ToList() ?? new List<string>();
 
-        return new AuthorizeUserResponse(isValidPassword, rolesNames);
+        return new AuthorizeUserResponse(isValidPassword, rolesNames, findUser.Id);
     }
 
     private async Task<User> FindUserWithRoleByEmailAsync(string email) => await _context.Users
@@ -103,9 +103,9 @@ public class AuthorizeRepository : IAuthorizeRepository
         if (!result.Succeeded)
             return new AuthorizeUserResponse("Неправильные имя пользовател или пароль");
 
-        var rolesNames = user?.Roles?.Select(x => x.NormalizedName).ToList() ?? new List<string>();
+        var rolesNames = user.Roles?.Select(x => x.NormalizedName).ToList() ?? new List<string>();
 
-        return new AuthorizeUserResponse(true, rolesNames);
+        return new AuthorizeUserResponse(true, rolesNames, user.Id);
     }
 
     /// <inheritdoc />

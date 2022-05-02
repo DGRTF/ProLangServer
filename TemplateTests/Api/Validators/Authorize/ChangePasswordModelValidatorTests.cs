@@ -34,7 +34,6 @@ public class ChangePasswordModelValidatorTests
     [InlineData("0A")]
     [InlineData("0Aa")]
     [InlineData("0Aa-")]
-    [InlineData("0Aa-!12")]
     public void ShouldHaveValidationErrorForPassword(string password)
     {
         var model = GetValidChangePasswordModelModel();
@@ -51,7 +50,6 @@ public class ChangePasswordModelValidatorTests
     [InlineData("0A")]
     [InlineData("0Aa")]
     [InlineData("0Aa-")]
-    [InlineData("0Aa-!12")]
     public void ShouldHaveValidationErrorForNewPassword(string password)
     {
         var model = GetValidChangePasswordModelModel();

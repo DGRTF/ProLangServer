@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using UserLogic.ExtensionsMethods;
 using UserLogic.ExternalInterfaces;
 using UserLogic.Models;
 using UserLogic.Services.Interfaces;
@@ -11,15 +12,19 @@ public class AuthorizeService : IAuthorizeService
     private readonly IAuthorizeRepository _authorizeRepository;
     private readonly IConfirmMailService _mailService;
     private readonly IJwtGenerator _jwtGeneration;
+    private readonly ITokensRepository _tokensRepository;
+
+    private static DateTime lastClearDate = DateTime.Now;
 
     public AuthorizeService(
         IAuthorizeRepository authorizeRepository,
         IConfirmMailService mailService,
-        IJwtGenerator jwtGeneration)
+        IJwtGenerator jwtGeneration, ITokensRepository tokensRepository)
     {
         _authorizeRepository = authorizeRepository;
-        this._mailService = mailService;
+        _mailService = mailService;
         _jwtGeneration = jwtGeneration;
+        _tokensRepository = tokensRepository;
     }
 
     /// <inheritdoc />
@@ -67,15 +72,49 @@ public class AuthorizeService : IAuthorizeService
         return new AuthorizeUserResponse(result, token);
     }
 
-    private string GetJwt(string email, AuthorizeUserResponse response)
+    /// <inheritdoc />
+    public async Task<TokenPairs> RefreshTokens(IReadOnlyList<Claim> claims)
+    {
+        var expiredRegularTokenStr = claims.First(x => x.Type == Constants.RegularTokenExpired).Value;
+        var userIdStr = claims.First(x=> x.Type == Constants.ClaimUserIdType).Value;
+        var userId = new Guid(userIdStr);
+        var expiredRegularToken = Convert.ToInt32(expiredRegularTokenStr);
+        var now = DateTime.Now;
+
+        if (expiredRegularToken >= now.ToUnixTimeStamp())
+            throw new Exception();
+
+        var slim = new SemaphoreSlim(1, 1);
+        await slim.WaitAsync();
+
+        try
+        {
+            if (await _tokensRepository.CheckCurrentToken(userId, expiredRegularToken))
+                throw new Exception();
+
+            await _tokensRepository.AddToken(userId, expiredRegularToken);
+            var differenceMinutes = (DateTime.Now - lastClearDate).TotalMinutes;
+
+            if(differenceMinutes > 20)
+                await _tokensRepository.ClearExpiredTokens();
+
+            return _jwtGeneration.GetJwt(claims, userId);
+        }
+        finally
+        {
+            slim.Release();
+        }
+    }
+
+    private TokenPairs GetJwt(string email, AuthorizeUserResponse response)
     {
         if (!response.Succeeded)
-            return string.Empty;
+            return new TokenPairs(string.Empty, string.Empty);
 
         var claims = response.Roles.Select(x => new Claim(ClaimsIdentity.DefaultRoleClaimType, x)).ToList();
         claims.Add(new Claim(ClaimsIdentity.DefaultNameClaimType, email));
 
-        return _jwtGeneration.GetJwt(claims);
+        return _jwtGeneration.GetJwt(claims, response.UserId);
     }
 
     /// <inheritdoc />

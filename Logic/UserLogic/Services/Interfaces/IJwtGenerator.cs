@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using UserLogic.Models;
 
 namespace UserLogic.Services.Interfaces;
 
@@ -11,6 +12,7 @@ public interface IJwtGenerator
     /// Создает jwt из списка утверждений
     /// </summary>
     /// <param name="claims">Коллекция представлений</param>
+    /// <param name="userId">Идентификатор пользователя</param>
     /// <returns>Jwt</returns>
-    public string GetJwt(IReadOnlyList<Claim> claims);
+    public TokenPairs GetJwt(IReadOnlyList<Claim> claims, Guid userId);
 }

@@ -29,19 +29,20 @@ public class AutofacConfiguration
         RegisterSingleInstance<AuthorizeRepository, IAuthorizeRepository>();
         _container.Register(x => new JWTGeneration(_configure.JWTAuthOptions)).As<IJwtGenerator>().SingleInstance();
         _container.RegisterAutoMapper(typeof(Program).Assembly);
-        _container.Register( x => new ConfirmMailService(_configure.Email)).As<IConfirmMailService>().SingleInstance();
+        _container.Register(x => new ConfirmMailService(_configure.Email)).As<IConfirmMailService>().SingleInstance();
         _container.RegisterInstance(_configure.Host).As<Api.Models.Configure.HostOptions>().SingleInstance();
         RegisterSingleInstance<ValidatorInterceptor, IValidatorInterceptor>();
+        RegisterSingleInstance<TokensRepository, ITokensRepository>();
     }
 
-    private IRegistrationBuilder<TInstance, Autofac.Builder.ConcreteReflectionActivatorData, Autofac.Builder.SingleRegistrationStyle> RegisterSingleInstance<TInstance, TService>()
+    private IRegistrationBuilder<TInstance, ConcreteReflectionActivatorData, SingleRegistrationStyle> RegisterSingleInstance<TInstance, TService>()
         where TInstance : notnull
         where TService : notnull
     {
         return Register<TInstance, TService>().SingleInstance();
     }
 
-    private IRegistrationBuilder<TInstance, Autofac.Builder.ConcreteReflectionActivatorData, Autofac.Builder.SingleRegistrationStyle> Register<TInstance, TService>()
+    private IRegistrationBuilder<TInstance, ConcreteReflectionActivatorData, SingleRegistrationStyle> Register<TInstance, TService>()
         where TInstance : notnull
         where TService : notnull
     {

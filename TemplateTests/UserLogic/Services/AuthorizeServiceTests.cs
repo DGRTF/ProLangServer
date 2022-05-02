@@ -28,17 +28,17 @@ public class AuthorizeServiceTests
     {
         _mock.Mock<IAuthorizeRepository>()
             .Setup(x => x.ConfirmEmail(It.IsAny<ConfirmUserEmail>()))
-            .Returns(Task.FromResult(new AuthorizeUserResponse(false, new[] { "User" })));
+            .Returns(Task.FromResult(new AuthorizeUserResponse(false, new[] { "User" }, Guid.Empty)));
 
-        var expected = "returnToken";
+        var expected = new TokenPairs("returnToken", string.Empty);
 
         _mock.Mock<IJwtGenerator>()
-            .Setup(x => x.GetJwt(It.IsAny<IReadOnlyList<Claim>>()))
+            .Setup(x => x.GetJwt(It.IsAny<IReadOnlyList<Claim>>(), It.IsAny<Guid>()))
             .Returns(expected);
 
         var actual = await _authorizeService.ConfirmEmail(new ConfirmUserEmail());
 
-        Assert.Equal(actual.Token, string.Empty);
+        Assert.Equal(actual.TokenPairs.Token, string.Empty);
     }
 
     [Fact]
@@ -46,17 +46,17 @@ public class AuthorizeServiceTests
     {
         _mock.Mock<IAuthorizeRepository>()
             .Setup(x => x.ConfirmEmail(It.IsAny<ConfirmUserEmail>()))
-            .Returns(Task.FromResult(new AuthorizeUserResponse(true, new[] { "User" })));
+            .Returns(Task.FromResult(new AuthorizeUserResponse(true, new[] { "User" }, Guid.Empty)));
 
-        var expected = "returnToken";
+        var expected = new TokenPairs("returnToken", string.Empty);
 
         _mock.Mock<IJwtGenerator>()
-            .Setup(x => x.GetJwt(It.IsAny<IReadOnlyList<Claim>>()))
+            .Setup(x => x.GetJwt(It.IsAny<IReadOnlyList<Claim>>(), It.IsAny<Guid>()))
             .Returns(expected);
 
         var actual = await _authorizeService.ConfirmEmail(new ConfirmUserEmail());
 
-        Assert.Equal(actual.Token, expected);
+        Assert.Equal(actual.TokenPairs.Token, expected.Token);
     }
 
 
@@ -65,17 +65,17 @@ public class AuthorizeServiceTests
     {
         _mock.Mock<IAuthorizeRepository>()
             .Setup(x => x.Login(It.IsAny<LoginUser>()))
-            .Returns(Task.FromResult(new AuthorizeUserResponse(false, new[] { "User" })));
+            .Returns(Task.FromResult(new AuthorizeUserResponse(false, new[] { "User" }, Guid.Empty)));
 
-        var expected = "returnToken";
+        var expected = new TokenPairs("returnToken", string.Empty);
 
         _mock.Mock<IJwtGenerator>()
-            .Setup(x => x.GetJwt(It.IsAny<IReadOnlyList<Claim>>()))
+            .Setup(x => x.GetJwt(It.IsAny<IReadOnlyList<Claim>>(), It.IsAny<Guid>()))
             .Returns(expected);
 
         var actual = await _authorizeService.Login(new LoginUser());
 
-        Assert.Equal(actual.Token, string.Empty);
+        Assert.Equal(actual.TokenPairs.Token, string.Empty);
     }
 
     [Fact]
@@ -83,17 +83,17 @@ public class AuthorizeServiceTests
     {
         _mock.Mock<IAuthorizeRepository>()
             .Setup(x => x.Login(It.IsAny<LoginUser>()))
-            .Returns(Task.FromResult(new AuthorizeUserResponse(true, new[] { "User" })));
+            .Returns(Task.FromResult(new AuthorizeUserResponse(true, new[] { "User" }, Guid.Empty)));
 
-        var expected = "returnToken";
+        var expected = new TokenPairs("returnToken", string.Empty);
 
         _mock.Mock<IJwtGenerator>()
-            .Setup(x => x.GetJwt(It.IsAny<IReadOnlyList<Claim>>()))
+            .Setup(x => x.GetJwt(It.IsAny<IReadOnlyList<Claim>>(), It.IsAny<Guid>()))
             .Returns(expected);
 
         var actual = await _authorizeService.Login(new LoginUser());
 
-        Assert.Equal(actual.Token, expected);
+        Assert.Equal(actual.TokenPairs.Token, expected.Token);
     }
 
     [Fact]

@@ -6,6 +6,11 @@ namespace UserLogic.Models;
 public class AuthorizeUserResponse
 {
     /// <summary>
+    /// Идентификатор пользователя
+    /// </summary>
+    public Guid UserId { get; }
+
+    /// <summary>
     /// Успешность операции
     /// </summary>
     public bool Succeeded { get; }
@@ -25,13 +30,13 @@ public class AuthorizeUserResponse
     /// В случае удачи выданный пользователю токен
     /// </summary>
     /// <value></value>
-    public string Token { get; }
+    public TokenPairs TokenPairs { get; }
 
     /// <summary>
     /// Конструктор для формирования ответа о неуспешном запросе
     /// </summary>
     /// <param name="error">Ошибка</param>
-    public AuthorizeUserResponse(string error) : this(false, new List<string>())
+    public AuthorizeUserResponse(string error) : this(false, new List<string>(), Guid.Empty)
     {
         Error = error ?? string.Empty;
     }
@@ -41,25 +46,27 @@ public class AuthorizeUserResponse
     /// </summary>
     /// <param name="succeeded">Успешность операции регистрации</param>
     /// <param name="role">В случае успеха присвоенная пользователю роль</param>
-    public AuthorizeUserResponse(bool succeeded, IReadOnlyList<string> roles)
+    public AuthorizeUserResponse(bool succeeded, IReadOnlyList<string> roles, Guid userId)
     {
+        UserId = userId;
         Succeeded = succeeded;
         Roles = succeeded ? roles : new List<string>();
         Roles ??= new List<string>();
         Error = string.Empty;
-        Token = string.Empty;
+        TokenPairs = new TokenPairs(string.Empty, string.Empty);
     }
 
     /// <summary>
-    /// Формирует на основании успешного ответа авторизации ответ авторизации с токеномы
+    /// Формирует на основании успешного ответа авторизации ответ авторизации с токеном
     /// </summary>
-    /// <param name="response"></param>
-    /// <param name="token"></param>
-    public AuthorizeUserResponse(AuthorizeUserResponse response, string token)
+    /// <param name="response">Успешный ответ аторизации</param>
+    /// <param name="token">Токены авторизации</param>
+    public AuthorizeUserResponse(AuthorizeUserResponse response, TokenPairs token)
     {
         Succeeded = response.Succeeded ? response.Succeeded : throw new ArgumentException($"Входной параметр {nameof(response)} должен быть true");
+        UserId = response.UserId;
         Roles = response.Roles;
         Error = string.Empty;
-        Token = token;
+        TokenPairs = token ?? new TokenPairs(string.Empty, string.Empty);
     }
 }
