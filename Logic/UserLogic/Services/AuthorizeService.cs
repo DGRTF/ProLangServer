@@ -14,8 +14,6 @@ public class AuthorizeService : IAuthorizeService
     private readonly IJwtGenerator _jwtGeneration;
     private readonly ITokensRepository _tokensRepository;
 
-    private static DateTime lastClearDate = DateTime.Now;
-
     public AuthorizeService(
         IAuthorizeRepository authorizeRepository,
         IConfirmMailService mailService,
@@ -76,34 +74,22 @@ public class AuthorizeService : IAuthorizeService
     public async Task<TokenPairs> RefreshTokens(IReadOnlyList<Claim> claims)
     {
         var expiredRegularTokenStr = claims.First(x => x.Type == Constants.RegularTokenExpired).Value;
-        var userIdStr = claims.First(x=> x.Type == Constants.ClaimUserIdType).Value;
-        var userId = new Guid(userIdStr);
         var expiredRegularToken = Convert.ToInt32(expiredRegularTokenStr);
+
+        var sessionGuidStr = claims.First(x => x.Type == Constants.SessionId).Value;
+        var sessionId = new Guid(sessionGuidStr);
+
         var now = DateTime.Now;
 
         if (expiredRegularToken >= now.ToUnixTimeStamp())
             throw new Exception();
 
-        var slim = new SemaphoreSlim(1, 1);
-        await slim.WaitAsync();
+        if (!_tokensRepository.CheckCurrentToken(sessionId))
+            throw new Exception();
+            
+        _tokensRepository.ClearToken(sessionId);
 
-        try
-        {
-            if (await _tokensRepository.CheckCurrentToken(userId, expiredRegularToken))
-                throw new Exception();
-
-            await _tokensRepository.AddToken(userId, expiredRegularToken);
-            var differenceMinutes = (DateTime.Now - lastClearDate).TotalMinutes;
-
-            if(differenceMinutes > 20)
-                await _tokensRepository.ClearExpiredTokens();
-
-            return _jwtGeneration.GetJwt(claims, userId);
-        }
-        finally
-        {
-            slim.Release();
-        }
+        return _jwtGeneration.GetJwt(claims, sessionId);
     }
 
     private TokenPairs GetJwt(string email, AuthorizeUserResponse response)
@@ -111,10 +97,13 @@ public class AuthorizeService : IAuthorizeService
         if (!response.Succeeded)
             return new TokenPairs(string.Empty, string.Empty);
 
+        var sessionId = Guid.NewGuid();
+        _tokensRepository.AddToken(sessionId);
         var claims = response.Roles.Select(x => new Claim(ClaimsIdentity.DefaultRoleClaimType, x)).ToList();
         claims.Add(new Claim(ClaimsIdentity.DefaultNameClaimType, email));
+        claims.Add(new Claim(Constants.SessionId, sessionId.ToString()));
 
-        return _jwtGeneration.GetJwt(claims, response.UserId);
+        return _jwtGeneration.GetJwt(claims, sessionId);
     }
 
     /// <inheritdoc />

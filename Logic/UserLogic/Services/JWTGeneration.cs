@@ -19,7 +19,7 @@ public class JWTGeneration : IJwtGenerator
     }
 
     /// <inheritdoc />
-    public TokenPairs GetJwt(IReadOnlyList<Claim> claims, Guid userId)
+    public TokenPairs GetJwt(IReadOnlyList<Claim> claims, Guid sessionId)
     {
         var now = DateTime.Now;
         var tokenExpired = now.Add(TimeSpan.FromMinutes(_jwtAuthOptions.LifeTime));
@@ -37,7 +37,7 @@ public class JWTGeneration : IJwtGenerator
         var refreshClaims = new List<Claim>
         {
             new Claim(Constants.RegularTokenExpired, tokenExpired.ToUnixTimeStamp().ToString()),
-            new Claim(Constants.ClaimUserIdType, userId.ToString()),
+            new Claim(Constants.SessionId, sessionId.ToString()),
         };
 
         var jwtRefreshToken = new JwtSecurityToken(

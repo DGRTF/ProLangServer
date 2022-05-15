@@ -14,5 +14,5 @@ public interface IJwtGenerator
     /// <param name="claims">Коллекция представлений</param>
     /// <param name="userId">Идентификатор пользователя</param>
     /// <returns>Jwt</returns>
-    public TokenPairs GetJwt(IReadOnlyList<Claim> claims, Guid userId);
+    public TokenPairs GetJwt(IReadOnlyList<Claim> claims, Guid sessionId);
 }

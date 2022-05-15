@@ -11,17 +11,17 @@ public interface ITokensRepository
     /// <param name="userId">Идентификатор пользователя</param>
     /// <param name="expireTimestamp">Тамстам с начала эпохи Unix</param>
     /// <returns>Находится ли токен в хранилище</returns>
-    Task<bool> CheckCurrentToken(Guid userId, int expireTimestamp);
+    bool CheckCurrentToken(Guid sessionId);
 
     /// <summary>
     /// Добавляет токен в хранилище
     /// </summary>
     /// <param name="userId">Идентификатор пользователя</param>
     /// <param name="expireTimestamp">Тамстам с начала эпохи Unix</param>
-    Task AddToken(Guid userId, int expireTimestamp);
+    void AddToken(Guid sessionId);
 
     /// <summary>
     /// Удаляет токены с истекшим временем жизни из хранилища
     /// </summary>
-    Task ClearExpiredTokens();
+    void ClearToken(Guid sessionId);
 }

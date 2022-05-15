@@ -6,12 +6,12 @@ namespace UserLogic.Models;
 public static class Constants
 {
     /// <summary>
-    /// Константа представления утверждения об истечении идентификатора пользователя
-    /// /// </summary>
-    public static string ClaimUserIdType => "userId".Normalize();
+    /// Константа представления утверждения об истечении срока давности регулярного токена
+    /// </summary>
+    public static string RegularTokenExpired => "regularTokenExpired".Normalize();
 
     /// <summary>
     /// Константа представления утверждения об истечении срока давности регулярного токена
     /// </summary>
-    public static string RegularTokenExpired => "regularTokenExpired".Normalize();
+    public static string SessionId => "SessionId".Normalize();
 }
